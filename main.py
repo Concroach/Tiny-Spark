@@ -1,7 +1,11 @@
-import pygame, random, sys
+import pygame, random, sys, time
 from pygame.locals import *
 import button
 from PIL import Image
+
+# написать меню после смерти
+# по нажатию на esc вылазило меню
+
 
 # Константы
 FPS = 60
@@ -23,6 +27,7 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 LIGHTBLUE = (202, 228, 241)
 BLUE = (34, 145, 230)
+RED = (255, 0, 0)
 
 
 pygame.init()
@@ -31,14 +36,15 @@ font = pygame.font.SysFont(None, 48)
 pygame.display.set_caption("Tiny Spark")
 font_menu_name = pygame.font.SysFont(None, 96)
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.mixer.music.load('baackground.mp3')
 
-# Загрузка изображений в меню
+# Загрузка изображений кнопок
 start_img = pygame.image.load('images\menu\start_btn.png').convert_alpha()
 setting_img = pygame.image.load('images\menu\setting_btn.png').convert_alpha()
-exit_img = pygame.image.load('images\menu\exit_btn.png').convert_alpha()
+quit_img = pygame.image.load('images\menu\quit_btn.png').convert_alpha()
 shop_img = pygame.image.load('images\menu\shop.png').convert_alpha()
-
+restart_img = pygame.image.load('images\menu\why.png').convert_alpha()
+back_to_menu_img = pygame.image.load('images\menu\exit_btn.png').convert_alpha()
+ 
 # Загрузка скинов
 player_skin = 'images\items\minecraft_steve.jpg'
 player_image = pygame.image.load(player_skin)
@@ -51,12 +57,15 @@ friend_image = pygame.image.load(friend_skin)
 # Устанавливаем кнопки
 start_button = button.Button(420, 250, start_img, 1.6)
 setting_button = button.Button(420, 340, setting_img, 1.6)
-exit_button = button.Button(420, 430, exit_img, 1.6)
+quit_button = button.Button(420, 430, quit_img, 1.6)
 shop_button = button.Button(860, 560, shop_img, 0.8)
+restart_button = button.Button(420, 250, restart_img, 1.6)
+back_to_menu_button = button.Button(420, 430, back_to_menu_img, 1.6)
 
 # Музыка
+pygame.mixer.music.load('sounds\music_background.mp3')
 pygame.mixer.music.play()
-pygame.mixer.music.set_volume(5)
+pygame.mixer.music.set_volume(0.5)
 
 # Соприкасание игрока с friend
 def friendhit(player_rect, friend):
@@ -79,7 +88,60 @@ def drawText(text, font, surface, x, y, color):
     textrect.topleft = (x, y)
     surface.blit(textobj, textrect)
 
+# Функция меню после смерти
+def menu_after_death():
+    death_menu = True
+    while True:
+        drawText('YOU DIED', font_menu_name, screen, 360, 140, RED)
+        pygame.mouse.set_visible(True)
+        # создаём нужные кнопки
+        restart_button.draw(screen)
+        setting_button.draw(screen)
+        back_to_menu_button.draw(screen)
+        pygame.display.flip()
+        for event in pygame.event.get():
+            # отслеживаем нажатие кнопок
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
+                if event.key == ord('r') or event.key == K_SPACE or event.key == K_RETURN:
+                    game()
+            if restart_button.draw(screen):
+                print('start the game из меню смерти')
+                game()
+            if setting_button.draw(screen):
+                print('settings из меню')
+            if back_to_menu_button.draw(screen):
+                main_menu()
+                death_menu = False
 
+    
+def main_menu():
+    while True:
+        screen.fill(LIGHTBLUE)
+        drawText('Tiny Spark', font_menu_name, screen, 346, 140, BLUE)
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                        pygame.quit()
+                        sys.exit()
+            
+            if start_button.draw(screen):
+                game()
+            if setting_button.draw(screen):
+                pass
+            if quit_button.draw(screen):
+                pygame.quit()
+                sys.exit()
+            if shop_button.draw(screen):
+                print('shop')  
+            pygame.display.flip()
+
+
+top_score = 0
 running = True
 while running:
     
@@ -91,7 +153,7 @@ while running:
         game()
     if setting_button.draw(screen):
         print('settings')
-    if exit_button.draw(screen):
+    if quit_button.draw(screen):
         pygame.quit()
         sys.exit()
     if shop_button.draw(screen):
@@ -99,8 +161,8 @@ while running:
     
     # Функция гемплея
     def game():
+        global top_score
         pygame.mouse.set_visible(False)
-        top_score = 0
         while True:
             enemy = []
             friend = []
@@ -116,7 +178,8 @@ while running:
             slowCheat = False
             EnemyCounter = 0
             FriendCounter = 0
-            while True:
+            menu = True
+            while menu:
                 for event in pygame.event.get():
                     if event.type == QUIT:
                         pygame.quit()
@@ -141,9 +204,6 @@ while running:
                             moveUp = False
                         if event.key == K_DOWN or event.key == ord('s'):
                             moveDown = False
-                        if event.key == K_ESCAPE:
-                            pygame.quit()
-                            sys.exit()
                 # Спавн enemy
                 if True:
                     EnemyCounter += 1
@@ -211,7 +271,6 @@ while running:
                 # Отрисовка друзей
                 for i in friend:
                     screen.blit(i['surface'], i['rect'])
-
                 pygame.display.update()
                 
                 # Проверка на соприкасание игрока и friend 
@@ -229,14 +288,21 @@ while running:
 
                 Clock.tick(FPS)
 
+            menu_after_death()
+
+            pygame.display.update()
 
     # Отрисовка кнопок через файл button.py
     start_button.draw(screen)
     setting_button.draw(screen)
-    exit_button.draw(screen)
+    quit_button.draw(screen)
     shop_button.draw(screen)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
     
     pygame.display.update()
