@@ -95,7 +95,6 @@ def drawText(text, font, surface, x, y, color):
 # Функция меню после смерти
 def menu_after_death():
     pygame.mixer.music.pause()
-
     death_menu = True
     while death_menu:
         screen.blit(background_image, (0, 0))
@@ -119,15 +118,15 @@ def menu_after_death():
                     game()
             if restart_button.draw(screen):
                 pygame.mixer.music.unpause()
-                print('start the game из меню смерти')
                 game()
             if setting_button.draw(screen):
-                print('settings из меню')
+                pass
             if back_to_menu_button.draw(screen):
                 main_menu()
                 death_menu = False
-
-    
+                
+def adasd():
+    pass
 def main_menu():
     while True:
         screen.fill(LIGHTBLUE)
