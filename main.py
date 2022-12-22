@@ -94,6 +94,8 @@ def drawText(text, font, surface, x, y, color):
 
 # Функция меню после смерти
 def menu_after_death():
+    pygame.mixer.music.pause()
+
     death_menu = True
     while death_menu:
         screen.blit(background_image, (0, 0))
@@ -232,10 +234,15 @@ while running:
                                         pygame.mouse.set_visible(False)
                                         pygame.mixer.music.unpause()
                                     if restart_button.draw(screen):
+                                        if score > top_score:
+                                            top_score = score
+                                        pygame.mixer.music.unpause()
                                         game()
                                     if setting_button.draw(screen):
                                         pass
                                     if back_to_menu_button.draw(screen):
+                                        if score > top_score:
+                                            top_score = score
                                         main_menu()
 
                     if event.type == KEYUP:
@@ -324,7 +331,6 @@ while running:
                             
                 # Проверка на соприкасание игрока и enemy
                 if enemyhit(player_rect, enemy):
-                    pygame.mixer.music.pause()
                     if score > top_score:
                         top_score = score
                     break
