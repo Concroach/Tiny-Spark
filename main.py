@@ -3,16 +3,12 @@ from pygame.locals import *
 import button
 from PIL import Image
 
-# написать меню после смерти
-# по нажатию на esc вылазило меню
-
-
 # Константы
 FPS = 60
 ENEMYSIZE = 15
-FRIENDSIZE = 20
+FRIENDSIZE = 35
 ENEMYMAXSIZE = 40
-FRIENDMAXSIZE = 25
+FRIENDMAXSIZE = 50
 ENEMYMINSPEED = 1
 ENEMYMAXSPEED = 8
 ADDNEWENEMYRATE = 6
@@ -28,6 +24,7 @@ BLACK = (0, 0, 0)
 LIGHTBLUE = (202, 228, 241)
 BLUE = (34, 145, 230)
 RED = (255, 0, 0)
+GREEN = (0, 214, 120)
 
 
 pygame.init()
@@ -38,34 +35,41 @@ font_menu_name = pygame.font.SysFont(None, 96)
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 # Загрузка изображений кнопок
-start_img = pygame.image.load('images\menu\start_btn.png').convert_alpha()
-setting_img = pygame.image.load('images\menu\setting_btn.png').convert_alpha()
-quit_img = pygame.image.load('images\menu\quit_btn.png').convert_alpha()
-shop_img = pygame.image.load('images\menu\shop.png').convert_alpha()
-restart_img = pygame.image.load('images\menu\why.png').convert_alpha()
-back_to_menu_img = pygame.image.load('images\menu\exit_btn.png').convert_alpha()
+start_img = pygame.image.load('images/menu/start_btn.png').convert_alpha()
+setting_img = pygame.image.load('images/menu/setting_btn.png').convert_alpha()
+quit_img = pygame.image.load('images/menu/quit_btn.png').convert_alpha()
+shop_img = pygame.image.load('images/menu/shop.png').convert_alpha()
+restart_img = pygame.image.load('images/menu/why.png').convert_alpha()
+back_to_menu_img = pygame.image.load('images/menu/exit_btn.png').convert_alpha()
+resume_img = pygame.image.load('images/menu/resume_btn.png').convert_alpha()
+
+background_image = pygame.image.load('images/menu/fon.png')
+background_image.set_colorkey(BLACK)
+
  
 # Загрузка скинов
-player_skin = 'images\items\minecraft_steve.jpg'
+player_skin = 'images/items/minecraft_steve.jpg'
 player_image = pygame.image.load(player_skin)
 player_rect = player_image.get_rect()
-enemy_skin = 'images\items\minecraft_crepper.jpg'
+enemy_skin = 'images/items/minecraft_crepper.jpg'
 enemy_image = pygame.image.load(enemy_skin)
-friend_skin = 'images\items\enemy.jpg'
+friend_skin = 'images/items/wfriend_diamond.png'
 friend_image = pygame.image.load(friend_skin)
 
 # Устанавливаем кнопки
+resume_button = button.Button(420, 160, resume_img, 1.6)
 start_button = button.Button(420, 250, start_img, 1.6)
+restart_button = button.Button(420, 250, restart_img, 1.6)
 setting_button = button.Button(420, 340, setting_img, 1.6)
 quit_button = button.Button(420, 430, quit_img, 1.6)
-shop_button = button.Button(860, 560, shop_img, 0.8)
-restart_button = button.Button(420, 250, restart_img, 1.6)
 back_to_menu_button = button.Button(420, 430, back_to_menu_img, 1.6)
+shop_button = button.Button(860, 560, shop_img, 0.8)
 
 # Музыка
-pygame.mixer.music.load('sounds\music_background.mp3')
-pygame.mixer.music.play()
-pygame.mixer.music.set_volume(0.5)
+# Логика такова: если мы запускаем игру из основного меню (с открытием игры или выйдя в него), то песня начинается заново
+# если мы запускаем игру кнопкой restart, то песня продолжается с того момента, на котором игрок умер
+# если игрок заходит в меню, то после выхода из него песня продолжается с того места, с которого была остановлена
+pygame.mixer.music.load('sounds/music_background.mp3')
 
 # Соприкасание игрока с friend
 def friendhit(player_rect, friend):
@@ -91,7 +95,8 @@ def drawText(text, font, surface, x, y, color):
 # Функция меню после смерти
 def menu_after_death():
     death_menu = True
-    while True:
+    while death_menu:
+        screen.blit(background_image, (0, 0))
         drawText('YOU DIED', font_menu_name, screen, 360, 140, RED)
         pygame.mouse.set_visible(True)
         # создаём нужные кнопки
@@ -111,6 +116,7 @@ def menu_after_death():
                 if event.key == ord('r') or event.key == K_SPACE or event.key == K_RETURN:
                     game()
             if restart_button.draw(screen):
+                pygame.mixer.music.unpause()
                 print('start the game из меню смерти')
                 game()
             if setting_button.draw(screen):
@@ -130,6 +136,7 @@ def main_menu():
                         sys.exit()
             
             if start_button.draw(screen):
+                pygame.mixer.music.play()
                 game()
             if setting_button.draw(screen):
                 pass
@@ -140,7 +147,6 @@ def main_menu():
                 print('shop')  
             pygame.display.flip()
 
-
 top_score = 0
 running = True
 while running:
@@ -149,6 +155,7 @@ while running:
     drawText('Tiny Spark', font_menu_name, screen, 346, 140, BLUE)
     
     if start_button.draw(screen):
+        pygame.mixer.music.play()
         print('start the game')
         game()
     if setting_button.draw(screen):
@@ -178,8 +185,7 @@ while running:
             slowCheat = False
             EnemyCounter = 0
             FriendCounter = 0
-            menu = True
-            while menu:
+            while True:
                 for event in pygame.event.get():
                     if event.type == QUIT:
                         pygame.quit()
@@ -194,6 +200,43 @@ while running:
                             moveUp = True
                         if event.key == K_DOWN or event.key == ord('s'):
                             moveDown = True
+                        # Пауза
+                        if event.key == K_ESCAPE:
+                            screen.blit(background_image, (0, 0))
+                            pause = True
+                            x = 0
+                            while pause:
+                                pygame.mouse.set_visible(True)
+                                drawText('PAUSE', font_menu_name, screen, 408, 80, GREEN)
+                                resume_button.draw(screen)
+                                restart_button.draw(screen)
+                                setting_button.draw(screen)
+                                back_to_menu_button.draw(screen)
+                                pygame.display.flip()
+                                for event in pygame.event.get():
+                                    # отслеживаем нажатие кнопок
+                                    if event.type == QUIT:
+                                        pygame.quit()
+                                        sys.exit()
+                                    if event.type == KEYUP:
+                                        x += 1
+                                        if event.key == K_ESCAPE and x % 2 == 0:
+                                            pause = False
+                                            pygame.mixer.music.unpause()
+                                            pygame.mouse.set_visible(False)
+                                        else:
+                                            pause = True
+                                            pygame.mixer.music.pause()
+                                    if resume_button.draw(screen):
+                                        pause = False    
+                                        pygame.mouse.set_visible(False)
+                                        pygame.mixer.music.unpause()
+                                    if restart_button.draw(screen):
+                                        game()
+                                    if setting_button.draw(screen):
+                                        pass
+                                    if back_to_menu_button.draw(screen):
+                                        main_menu()
 
                     if event.type == KEYUP:
                         if event.key == K_LEFT or event.key == ord('a'):
@@ -211,7 +254,7 @@ while running:
                     EnemyCounter = 0
                     enemyize = random.randint(ENEMYSIZE, ENEMYMAXSIZE)
                     new_enemy = {
-                        'rect': pygame.Rect(random.randint(0, SCREEN_WIDTH-enemyize), 0 - enemyize, enemyize, enemyize),
+                        'rect': pygame.Rect(random.randint(0, SCREEN_WIDTH - enemyize), 0 - enemyize, enemyize, enemyize),
                         'speed': random.randint(ENEMYMINSPEED, ENEMYMAXSPEED),
                         'surface':pygame.transform.scale(enemy_image, (enemyize, enemyize)),
                         }
@@ -223,7 +266,7 @@ while running:
                     FriendCounter = 0
                     friend_size = random.randint(FRIENDSIZE, FRIENDMAXSIZE)
                     new_friend = {
-                        'rect': pygame.Rect(random.randint(0, SCREEN_WIDTH-friend_size), 0 - friend_size, friend_size, friend_size),
+                        'rect': pygame.Rect(random.randint(0, SCREEN_WIDTH - friend_size), 0 - friend_size, friend_size, friend_size),
                         'speed': random.randint(ENEMYMINSPEED, ENEMYMAXSPEED),
                         'surface':pygame.transform.scale(friend_image, (friend_size, friend_size)),
                         }
@@ -260,7 +303,6 @@ while running:
                 # Отрисовка очков
                 drawText('Score: %s' % (score), font, screen, 10, 10, WHITE)
                 drawText('Top Score: %s' % (top_score), font, screen, 10, 50, WHITE)
-                drawText('To exit press esc', font, screen, 10, 90, WHITE)
 
                 # Отрисовка игрока
                 screen.blit(player_image, player_rect)
@@ -282,6 +324,7 @@ while running:
                             
                 # Проверка на соприкасание игрока и enemy
                 if enemyhit(player_rect, enemy):
+                    pygame.mixer.music.pause()
                     if score > top_score:
                         top_score = score
                     break
@@ -304,5 +347,6 @@ while running:
                 if event.key == K_ESCAPE:
                     pygame.quit()
                     sys.exit()
+        
     
     pygame.display.update()
