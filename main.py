@@ -1,7 +1,10 @@
-import pygame, random, sys, time
-from pygame.locals import *
+import pygame
+import random
+import sys
+import time
 import button
 from PIL import Image
+from pygame.locals import *
 
 # Константы
 FPS = 60
@@ -42,7 +45,9 @@ shop_img = pygame.image.load('images/menu/shop.png').convert_alpha()
 restart_img = pygame.image.load('images/menu/why.png').convert_alpha()
 back_to_menu_img = pygame.image.load('images/menu/exit_btn.png').convert_alpha()
 resume_img = pygame.image.load('images/menu/resume_btn.png').convert_alpha()
-help_img = pygame.image.load('images/menu/start_btn2.png').convert_alpha()
+shop1_img = pygame.image.load('images/shop/shop1.png').convert_alpha()
+packet_minecraft_img = pygame.image.load('images/shop/packet_minecraft.png').convert_alpha()
+packet_minecraft_selected_img = pygame.image.load('images/shop/packet_minecraft_selected.png').convert_alpha()
 
 background_image = pygame.image.load('images/menu/fon.png')
 background_image.set_colorkey(BLACK)
@@ -54,7 +59,7 @@ player_image = pygame.image.load(player_skin)
 player_rect = player_image.get_rect()
 enemy_skin = 'images/items/minecraft_crepper.jpg'
 enemy_image = pygame.image.load(enemy_skin)
-friend_skin = 'images/items/wfriend_diamond.png'
+friend_skin = 'images/items/friend_diamond.png'
 friend_image = pygame.image.load(friend_skin)
 
 # Устанавливаем кнопки
@@ -65,8 +70,9 @@ setting_button = button.Button(420, 340, setting_img, 1.6)
 quit_button = button.Button(420, 430, quit_img, 1.6)
 back_to_menu_button = button.Button(420, 430, back_to_menu_img, 1.6)
 shop_button = button.Button(860, 560, shop_img, 0.8)
-help_button = button.Button(860, 560, help_img, 0.8)
-
+shop1_button = button.Button(100, 100, shop1_img, 0.5)
+packet_minecraft_button = button.Button(100, 200, packet_minecraft_img, 1)
+packet_minecraft_selected_button = button.Button(100, 200, packet_minecraft_selected_img, 1)
 # Музыка
 # Логика такова: если мы запускаем игру из основного меню (с открытием игры или выйдя в него), то песня начинается заново
 # если мы запускаем игру кнопкой restart, то песня продолжается с того момента, на котором игрок умер
@@ -96,11 +102,16 @@ def drawText(text, font, surface, x, y, color):
     surface.blit(textobj, textrect)
 
 
-def shop():
+def shop(player_image, player_rect, player_skin, enemy_image, friend_image):
+    z = 0
     while True:
-        screen.fill(BLACK)
+        screen.fill(GREEN)
         back_to_menu_button.draw(screen)
-        help_button.draw(screen)
+        shop1_button.draw(screen)
+        if z % 2 == 0:
+            packet_minecraft_button.draw(screen)
+        else:
+            packet_minecraft_selected_button.draw(screen)
         for event in pygame.event.get():
             # отслеживаем нажатие кнопок
             if event.type == QUIT:
@@ -108,8 +119,7 @@ def shop():
                 sys.exit()
             if back_to_menu_button.draw(screen):
                     main_menu(player_image, player_rect, player_skin, enemy_image, friend_image)
-            if help_button.draw(screen):
-            
+            if shop1_button.draw(screen):
                 player_skin = 'images/items/player_rocket.png'
                 player_image = pygame.image.load(player_skin)
                 player_rect = player_image.get_rect()
@@ -117,8 +127,18 @@ def shop():
                 enemy_image = pygame.image.load(enemy_skin)
                 friend_skin = 'images/items/friend_star.png'
                 friend_image = pygame.image.load(friend_skin)
-                
                 print('skin')
+            if packet_minecraft_button.draw(screen):
+                print(z)
+                z += 1
+                player_skin = 'images/items/minecraft_steve.jpg'
+                player_image = pygame.image.load(player_skin)
+                player_rect = player_image.get_rect()
+                enemy_skin = 'images/items/minecraft_crepper.jpg'
+                enemy_image = pygame.image.load(enemy_skin)
+                friend_skin = 'images/items/friend_diamond.png'
+                friend_image = pygame.image.load(friend_skin)
+                shop1_button.draw(screen)
                 
         pygame.display.flip()
 
@@ -178,7 +198,7 @@ def main_menu(player_image, player_rect, player_skin, enemy_image, friend_image)
                 pygame.quit()
                 sys.exit()
             if shop_button.draw(screen):
-                shop()
+                shop(player_image, player_rect, player_skin, enemy_image, friend_image)
             pygame.display.flip()
 
 top_score = 0
@@ -195,7 +215,7 @@ while running:
         pygame.quit()
         sys.exit()
     if shop_button.draw(screen):
-        shop()
+        shop(player_image, player_rect, player_skin, enemy_image, friend_image)
 
     # Функция гемплея
     def game(player_image, player_rect, player_skin, enemy_image, friend_image):
