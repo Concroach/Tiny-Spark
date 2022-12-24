@@ -42,6 +42,7 @@ shop_img = pygame.image.load('images/menu/shop.png').convert_alpha()
 restart_img = pygame.image.load('images/menu/why.png').convert_alpha()
 back_to_menu_img = pygame.image.load('images/menu/exit_btn.png').convert_alpha()
 resume_img = pygame.image.load('images/menu/resume_btn.png').convert_alpha()
+help_img = pygame.image.load('images/menu/start_btn2.png').convert_alpha()
 
 background_image = pygame.image.load('images/menu/fon.png')
 background_image.set_colorkey(BLACK)
@@ -64,12 +65,14 @@ setting_button = button.Button(420, 340, setting_img, 1.6)
 quit_button = button.Button(420, 430, quit_img, 1.6)
 back_to_menu_button = button.Button(420, 430, back_to_menu_img, 1.6)
 shop_button = button.Button(860, 560, shop_img, 0.8)
+help_button = button.Button(860, 560, help_img, 0.8)
 
 # Музыка
 # Логика такова: если мы запускаем игру из основного меню (с открытием игры или выйдя в него), то песня начинается заново
 # если мы запускаем игру кнопкой restart, то песня продолжается с того момента, на котором игрок умер
 # если игрок заходит в меню, то после выхода из него песня продолжается с того места, с которого была остановлена
 pygame.mixer.music.load('sounds/music_background.mp3')
+game_over = pygame.mixer.Sound('sounds/game_over.mp3')
 
 # Соприкасание игрока с friend
 def friendhit(player_rect, friend):
@@ -92,8 +95,37 @@ def drawText(text, font, surface, x, y, color):
     textrect.topleft = (x, y)
     surface.blit(textobj, textrect)
 
+
+def shop():
+    while True:
+        screen.fill(BLACK)
+        back_to_menu_button.draw(screen)
+        help_button.draw(screen)
+        for event in pygame.event.get():
+            # отслеживаем нажатие кнопок
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            if back_to_menu_button.draw(screen):
+                    main_menu(player_image, player_rect, player_skin, enemy_image, friend_image)
+            if help_button.draw(screen):
+            
+                player_skin = 'images/items/player_rocket.png'
+                player_image = pygame.image.load(player_skin)
+                player_rect = player_image.get_rect()
+                enemy_skin = 'images/items/enemy_meteor.png'
+                enemy_image = pygame.image.load(enemy_skin)
+                friend_skin = 'images/items/friend_star.png'
+                friend_image = pygame.image.load(friend_skin)
+                
+                print('skin')
+                
+        pygame.display.flip()
+
+
+
 # Функция меню после смерти
-def menu_after_death():
+def menu_after_death(player_image, player_rect, player_skin, enemy_image, friend_image):
     pygame.mixer.music.pause()
     death_menu = True
     while death_menu:
@@ -115,19 +147,20 @@ def menu_after_death():
                     pygame.quit()
                     sys.exit()
                 if event.key == ord('r') or event.key == K_SPACE or event.key == K_RETURN:
-                    game()
+                    game(player_image, player_rect, player_skin, enemy_image, friend_image)
             if restart_button.draw(screen):
                 pygame.mixer.music.unpause()
-                game()
+                game(player_image, player_rect, player_skin, enemy_image, friend_image)
             if setting_button.draw(screen):
                 pass
             if back_to_menu_button.draw(screen):
-                main_menu()
+                main_menu(player_image, player_rect, player_skin, enemy_image, friend_image)
                 death_menu = False
 
-    
-def main_menu():
+# Меню в которое мы выходим из "меню" при помощи esc или из "меню" после смерти
+def main_menu(player_image, player_rect, player_skin, enemy_image, friend_image):
     while True:
+        
         screen.fill(LIGHTBLUE)
         drawText('Tiny Spark', font_menu_name, screen, 346, 140, BLUE)
         for event in pygame.event.get():
@@ -137,38 +170,38 @@ def main_menu():
             
             if start_button.draw(screen):
                 pygame.mixer.music.play()
-                game()
+
+                game(player_image, player_rect, player_skin, enemy_image, friend_image)
             if setting_button.draw(screen):
                 pass
             if quit_button.draw(screen):
                 pygame.quit()
                 sys.exit()
             if shop_button.draw(screen):
-                print('shop')  
+                shop()
             pygame.display.flip()
 
 top_score = 0
 running = True
 while running:
-    
     screen.fill(LIGHTBLUE)
     drawText('Tiny Spark', font_menu_name, screen, 346, 140, BLUE)
-    
     if start_button.draw(screen):
         pygame.mixer.music.play()
-        print('start the game')
-        game()
+        game(player_image, player_rect, player_skin, enemy_image, friend_image)
     if setting_button.draw(screen):
-        print('settings')
+        pass
     if quit_button.draw(screen):
         pygame.quit()
         sys.exit()
     if shop_button.draw(screen):
-        print('shop')
-    
+        shop()
+
     # Функция гемплея
-    def game():
+    def game(player_image, player_rect, player_skin, enemy_image, friend_image):
         global top_score
+        
+
         pygame.mouse.set_visible(False)
         while True:
             enemy = []
@@ -235,7 +268,7 @@ while running:
                                         if score > top_score:
                                             top_score = score
                                         pygame.mixer.music.unpause()
-                                        game()
+                                        game(player_image, player_rect, player_skin, enemy_image, friend_image)
                                     if setting_button.draw(screen):
                                         pass
                                     if back_to_menu_button.draw(screen):
@@ -334,10 +367,12 @@ while running:
                     break
 
                 Clock.tick(FPS)
+            game_over.play()
 
-            menu_after_death()
+            menu_after_death(player_image, player_rect, player_skin, enemy_image, friend_image)
 
             pygame.display.update()
+
 
     # Отрисовка кнопок через файл button.py
     start_button.draw(screen)
