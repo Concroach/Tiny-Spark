@@ -52,7 +52,6 @@ packet_minecraft_selected_img = pygame.image.load('images/shop/packet_minecraft_
 background_image = pygame.image.load('images/menu/fon.png')
 background_image.set_colorkey(BLACK)
 
- 
 # Загрузка скинов
 player_skin = 'images/items/minecraft_steve.jpg'
 player_image = pygame.image.load(player_skin)
@@ -73,12 +72,24 @@ shop_button = button.Button(860, 560, shop_img, 0.8)
 shop1_button = button.Button(100, 100, shop1_img, 0.5)
 packet_minecraft_button = button.Button(100, 200, packet_minecraft_img, 1)
 packet_minecraft_selected_button = button.Button(100, 200, packet_minecraft_selected_img, 1)
+
 # Музыка
 # Логика такова: если мы запускаем игру из основного меню (с открытием игры или выйдя в него), то песня начинается заново
 # если мы запускаем игру кнопкой restart, то песня продолжается с того момента, на котором игрок умер
 # если игрок заходит в меню, то после выхода из него песня продолжается с того места, с которого была остановлена
+volume = 1
 pygame.mixer.music.load('sounds/music_background.mp3')
+pygame.mixer.music.set_volume(volume)
 game_over = pygame.mixer.Sound('sounds/game_over.mp3')
+game_over.set_volume(volume)
+take_friend = pygame.mixer.Sound('sounds/take_sound.mp3')
+take_friend.set_volume(volume)
+
+# Флаги для магазина
+flag_mine = True
+flag_rocket = False
+flag_rocket_buy = True
+flag_rocket_is = False
 
 # Соприкасание игрока с friend
 def friendhit(player_rect, friend):
@@ -102,35 +113,109 @@ def drawText(text, font, surface, x, y, color):
     surface.blit(textobj, textrect)
 
 
+def settings_menu_after_death():
+    loudness = 0.1
+    while True:
+        screen.fill(BLACK)
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+        pygame.display.update()
+
+def settings_main_menu():
+    loudness = 0.1
+    while True:
+        screen.fill(BLACK)
+        back_to_menu_button.draw(screen)
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            if back_to_menu_button.draw(screen):
+                main_menu(player_image, player_rect, player_skin, enemy_image, friend_image)
+        pygame.display.update()
+
+def settings_menu():
+    while True:
+        screen.fill(BLACK)
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+        
+
+def settings():
+    loudness = 0.1
+
+    
+    '''if turn_down.clicked_on_btn():
+        pygame.mixer.music.set_volume(volume - loudness)
+    elif turn_up.clicked_on_btn():
+        pygame.mixer.music.set_volume(volume + loudness)'''
+    pygame.display.update()
+
+
+def check():
+    while True:
+        screen.fill(BLACK)
+        drawText('Вы уверены, что хотите купить?', font, screen, 10, 50, WHITE)
+        drawText('ДА', font, screen, 10, 90, WHITE)
+        drawText('НЕТ', font, screen, 10, 130, WHITE)
+        for event in pygame.event.get():
+            # отслеживаем нажатие кнопок
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+        pygame.display.update()
+        '''if yes:
+            all_scores -= 10
+            flag_mine = False
+            flag_rocket = True
+            player_skin = 'images/items/player_rocket.png'
+            player_image = pygame.image.load(player_skin)
+            player_rect = player_image.get_rect()
+            enemy_skin = 'images/items/enemy_meteor.png'
+            enemy_image = pygame.image.load(enemy_skin)
+            friend_skin = 'images/items/friend_star.png'
+            friend_image = pygame.image.load(friend_skin)
+            flag_rocket_buy = False
+            flag_rocket_is = True
+                '''
+        """if no:
+            back to shop
+            """
+        
+
+# Магазин для выбора скинов
 def shop(player_image, player_rect, player_skin, enemy_image, friend_image):
-    z = 0
+    global flag_rocket
+    global flag_mine
+    global flag_rocket_buy
+    global flag_rocket_is
     while True:
         screen.fill(GREEN)
-        back_to_menu_button.draw(screen)
+        drawText('Scores: %s' % (all_scores), font, screen, 10, 50, WHITE)
         shop1_button.draw(screen)
-        if z % 2 == 0:
-            packet_minecraft_button.draw(screen)
-        else:
+        back_to_menu_button.draw(screen)
+        packet_minecraft_button.draw(screen)
+        if flag_rocket_buy:
+            drawText('Цена набора: 10', font, screen, 300, 100, WHITE)
+        if flag_mine:
             packet_minecraft_selected_button.draw(screen)
+        elif flag_rocket:
+            resume_button.draw(screen)
         for event in pygame.event.get():
             # отслеживаем нажатие кнопок
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
             if back_to_menu_button.draw(screen):
-                    main_menu(player_image, player_rect, player_skin, enemy_image, friend_image)
-            if shop1_button.draw(screen):
-                player_skin = 'images/items/player_rocket.png'
-                player_image = pygame.image.load(player_skin)
-                player_rect = player_image.get_rect()
-                enemy_skin = 'images/items/enemy_meteor.png'
-                enemy_image = pygame.image.load(enemy_skin)
-                friend_skin = 'images/items/friend_star.png'
-                friend_image = pygame.image.load(friend_skin)
-                print('skin')
-            if packet_minecraft_button.draw(screen):
-                print(z)
-                z += 1
+                main_menu(player_image, player_rect, player_skin, enemy_image, friend_image)
+            if shop1_button.clicked_on_btn() and flag_rocket_buy:
+                check()
+            if packet_minecraft_button.clicked_on_btn():
+                print('mine')
                 player_skin = 'images/items/minecraft_steve.jpg'
                 player_image = pygame.image.load(player_skin)
                 player_rect = player_image.get_rect()
@@ -138,11 +223,20 @@ def shop(player_image, player_rect, player_skin, enemy_image, friend_image):
                 enemy_image = pygame.image.load(enemy_skin)
                 friend_skin = 'images/items/friend_diamond.png'
                 friend_image = pygame.image.load(friend_skin)
-                shop1_button.draw(screen)
-                
+                flag_mine = True
+                flag_rocket = False
+            if flag_rocket_is:
+                if shop1_button.clicked_on_btn():
+                    flag_mine = False
+                    flag_rocket = True
+                    player_skin = 'images/items/player_rocket.png'
+                    player_image = pygame.image.load(player_skin)
+                    player_rect = player_image.get_rect()
+                    enemy_skin = 'images/items/enemy_meteor.png'
+                    enemy_image = pygame.image.load(enemy_skin)
+                    friend_skin = 'images/items/friend_star.png'
+                    friend_image = pygame.image.load(friend_skin)
         pygame.display.flip()
-
-
 
 # Функция меню после смерти
 def menu_after_death(player_image, player_rect, player_skin, enemy_image, friend_image):
@@ -167,12 +261,13 @@ def menu_after_death(player_image, player_rect, player_skin, enemy_image, friend
                     pygame.quit()
                     sys.exit()
                 if event.key == ord('r') or event.key == K_SPACE or event.key == K_RETURN:
+                    pygame.mixer.music.unpause()
                     game(player_image, player_rect, player_skin, enemy_image, friend_image)
             if restart_button.draw(screen):
                 pygame.mixer.music.unpause()
                 game(player_image, player_rect, player_skin, enemy_image, friend_image)
             if setting_button.draw(screen):
-                pass
+                    settings_menu_after_death()
             if back_to_menu_button.draw(screen):
                 main_menu(player_image, player_rect, player_skin, enemy_image, friend_image)
                 death_menu = False
@@ -193,7 +288,7 @@ def main_menu(player_image, player_rect, player_skin, enemy_image, friend_image)
 
                 game(player_image, player_rect, player_skin, enemy_image, friend_image)
             if setting_button.draw(screen):
-                pass
+                settings()
             if quit_button.draw(screen):
                 pygame.quit()
                 sys.exit()
@@ -202,6 +297,7 @@ def main_menu(player_image, player_rect, player_skin, enemy_image, friend_image)
             pygame.display.flip()
 
 top_score = 0
+all_scores = 0
 running = True
 while running:
     screen.fill(LIGHTBLUE)
@@ -210,7 +306,7 @@ while running:
         pygame.mixer.music.play()
         game(player_image, player_rect, player_skin, enemy_image, friend_image)
     if setting_button.draw(screen):
-        pass
+        settings_main_menu()
     if quit_button.draw(screen):
         pygame.quit()
         sys.exit()
@@ -220,6 +316,7 @@ while running:
     # Функция гемплея
     def game(player_image, player_rect, player_skin, enemy_image, friend_image):
         global top_score
+        global all_scores
         
 
         pygame.mouse.set_visible(False)
@@ -290,11 +387,11 @@ while running:
                                         pygame.mixer.music.unpause()
                                         game(player_image, player_rect, player_skin, enemy_image, friend_image)
                                     if setting_button.draw(screen):
-                                        pass
+                                        settings()
                                     if back_to_menu_button.draw(screen):
                                         if score > top_score:
                                             top_score = score
-                                        main_menu()
+                                        main_menu(player_image, player_rect, player_skin, enemy_image, friend_image)
 
                     if event.type == KEYUP:
                         if event.key == K_LEFT or event.key == ord('a'):
@@ -376,9 +473,12 @@ while running:
                 # Проверка на соприкасание игрока и friend 
                 if friendhit(player_rect, friend):
                     score += 1
+                    all_scores += 1
+                    take_friend.play()
                     for i in friend:
                         if player_rect.colliderect(i['rect']):                            
                             friend.remove(i)
+
                             
                 # Проверка на соприкасание игрока и enemy
                 if enemyhit(player_rect, enemy):
@@ -388,6 +488,7 @@ while running:
 
                 Clock.tick(FPS)
             game_over.play()
+            take_friend.stop()
 
             menu_after_death(player_image, player_rect, player_skin, enemy_image, friend_image)
 
