@@ -5,6 +5,7 @@ import time
 import button
 from PIL import Image
 from pygame.locals import *
+from save import *
 
 # Константы
 FPS = 60
@@ -31,6 +32,7 @@ GREEN = (0, 214, 120)
 
 
 pygame.init()
+save_data = save()
 Clock = pygame.time.Clock()
 font = pygame.font.SysFont(None, 48)
 pygame.display.set_caption("Tiny Spark")
@@ -56,8 +58,6 @@ packet_mario_selected_img = pygame.image.load('images/shop/packet_mario_selected
 
 yes_img = pygame.image.load('images/menu/yes_btn.png').convert_alpha()
 no_img = pygame.image.load('images/menu/no_btn.png').convert_alpha()
-
-
 
 background_image = pygame.image.load('images/menu/fon.png')
 
@@ -103,15 +103,15 @@ take_friend = pygame.mixer.Sound('sounds/take_sound.mp3')
 take_friend.set_volume(volume)
 
 # Флаги для магазина
-flag_mario = True
+flag_mario = save_data.get('flag_mario')
 
-flag_mine = False
-flag_mine_buy = True
-flag_mine_is = False
+flag_mine = save_data.get('flag_mine')
+flag_mine_buy = save_data.get('flag_mine_buy')
+flag_mine_is = save_data.get('flag_mine_is')
 
-flag_rocket = False
-flag_rocket_buy = True
-flag_rocket_is = False
+flag_rocket = save_data.get('flag_rocket')
+flag_rocket_buy = save_data.get('flag_rocket_buy')
+flag_rocket_is = save_data.get('flag_rocket_is')
 
 # Соприкасание игрока с friend
 def friendhit(player_rect, friend):
@@ -141,6 +141,7 @@ def settings_menu_after_death():
         screen.fill(BLACK)
         for event in pygame.event.get():
             if event.type == QUIT:
+                save_files()
                 pygame.quit()
                 sys.exit()
         pygame.display.update()
@@ -152,6 +153,7 @@ def settings_main_menu():
         back_to_menu_button.draw(screen)
         for event in pygame.event.get():
             if event.type == QUIT:
+                save_files()
                 pygame.quit()
                 sys.exit()
             if back_to_menu_button.draw(screen):
@@ -163,6 +165,7 @@ def settings_menu():
         screen.fill(BLACK)
         for event in pygame.event.get():
             if event.type == QUIT:
+                save_files()
                 pygame.quit()
                 sys.exit()
         
@@ -176,6 +179,18 @@ def settings():
     elif turn_up.clicked_on_btn():
         pygame.mixer.music.set_volume(volume + loudness)'''
     pygame.display.update()
+
+# Функция сохранения очков, скинов и их состояний
+def save_files():
+    save_data.save('max', top_score)
+    save_data.save('all', all_scores)
+    save_data.save('flag_mario', flag_mario)
+    save_data.save('flag_rocket', flag_rocket)
+    save_data.save('flag_rocket_is', flag_rocket_is)
+    save_data.save('flag_rocket_buy', flag_rocket_buy)
+    save_data.save('flag_mine', flag_mine)
+    save_data.save('flag_mine_is', flag_mine_is)
+    save_data.save('flag_mine_buy', flag_mine_buy)
 
 # Покупка скина
 def check(player_image, player_rect, player_skin, enemy_image, friend_image, flag_of_check):
@@ -194,6 +209,7 @@ def check(player_image, player_rect, player_skin, enemy_image, friend_image, fla
         for event in pygame.event.get():
             # отслеживаем нажатие кнопок
             if event.type == QUIT:
+                save_files()
                 pygame.quit()
                 sys.exit()
             if flag_of_check == 'space':
@@ -273,6 +289,7 @@ def shop(player_image, player_rect, player_skin, enemy_image, friend_image):
         for event in pygame.event.get():
             # отслеживаем нажатие кнопок
             if event.type == QUIT:
+                save_files()
                 pygame.quit()
                 sys.exit()
             if event.type == KEYDOWN and event.key == ord(';'):
@@ -324,6 +341,8 @@ def shop(player_image, player_rect, player_skin, enemy_image, friend_image):
 
 # Функция меню после смерти
 def menu_after_death(player_image, player_rect, player_skin, enemy_image, friend_image):
+    save_data.save('max', top_score)
+    save_data.save('all', all_scores)
     pygame.mixer.music.pause()
     death_menu = True
     while death_menu:
@@ -338,10 +357,12 @@ def menu_after_death(player_image, player_rect, player_skin, enemy_image, friend
         for event in pygame.event.get():
             # отслеживаем нажатие кнопок
             if event.type == QUIT:
+                save_files()
                 pygame.quit()
                 sys.exit()
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
+                    save_files()
                     pygame.quit()
                     sys.exit()
                 if event.key == ord('r') or event.key == K_SPACE or event.key == K_RETURN:
@@ -354,7 +375,6 @@ def menu_after_death(player_image, player_rect, player_skin, enemy_image, friend
                     settings_menu_after_death()
             if back_to_menu_button.draw(screen):
                 main_menu(player_image, player_rect, player_skin, enemy_image, friend_image)
-                death_menu = False
 
 # Меню в которое мы выходим из "меню" при помощи esc или из "меню" после смерти
 def main_menu(player_image, player_rect, player_skin, enemy_image, friend_image):
@@ -363,6 +383,7 @@ def main_menu(player_image, player_rect, player_skin, enemy_image, friend_image)
         drawText('Tiny Spark', font_menu_name, screen, 346, 140, BLUE)
         for event in pygame.event.get():
             if event.type == QUIT:
+                        save_files()
                         pygame.quit()
                         sys.exit()
             if start_button.draw(screen):
@@ -371,14 +392,18 @@ def main_menu(player_image, player_rect, player_skin, enemy_image, friend_image)
             if setting_button.draw(screen):
                 settings()
             if quit_button.draw(screen):
+                save_files()
                 pygame.quit()
                 sys.exit()
             if shop_button.draw(screen):
                 shop(player_image, player_rect, player_skin, enemy_image, friend_image)
             pygame.display.flip()
 
-top_score = 0
-all_scores = 0
+'''top_score = 0
+all_scores = 0'''
+top_score = save_data.get('max')
+all_scores = save_data.get('all')
+
 running = True
 while running:
     screen.fill(LIGHTBLUE)
@@ -389,6 +414,7 @@ while running:
     if setting_button.draw(screen):
         settings_main_menu()
     if quit_button.draw(screen):
+        save_files()
         pygame.quit()
         sys.exit()
     if shop_button.draw(screen):
@@ -417,6 +443,7 @@ while running:
             while True:                
                 for event in pygame.event.get():
                     if event.type == QUIT:
+                        save_files()
                         pygame.quit()
                         sys.exit()
                     # Управление
@@ -445,6 +472,8 @@ while running:
                                 for event in pygame.event.get():
                                     # отслеживаем нажатие кнопок
                                     if event.type == QUIT:
+                                        top_score = score
+                                        save_files()
                                         pygame.quit()
                                         sys.exit()
                                     if event.type == KEYUP:
@@ -573,7 +602,6 @@ while running:
 
             pygame.display.update()
 
-
     # Отрисовка кнопок через файл button.py
     start_button.draw(screen)
     setting_button.draw(screen)
@@ -581,11 +609,12 @@ while running:
     shop_button.draw(screen)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            save_files()
             running = False
         if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
+                    save_files()
                     pygame.quit()
                     sys.exit()
         
-    
     pygame.display.update()
