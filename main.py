@@ -45,20 +45,29 @@ shop_img = pygame.image.load('images/menu/shop.png').convert_alpha()
 restart_img = pygame.image.load('images/menu/why.png').convert_alpha()
 back_to_menu_img = pygame.image.load('images/menu/exit_btn.png').convert_alpha()
 resume_img = pygame.image.load('images/menu/resume_btn.png').convert_alpha()
-shop1_img = pygame.image.load('images/shop/shop1.png').convert_alpha()
 packet_minecraft_img = pygame.image.load('images/shop/packet_minecraft.png').convert_alpha()
+packet_minecraft_closed_img = pygame.image.load('images/shop/packet_minecraft_closed.png').convert_alpha()
 packet_minecraft_selected_img = pygame.image.load('images/shop/packet_minecraft_selected.png').convert_alpha()
+packet_space_img = pygame.image.load('images/shop/packet_space.png').convert_alpha()
+packet_space_selected_img = pygame.image.load('images/shop/packet_space_selected.png').convert_alpha()
+packet_space_closed_img = pygame.image.load('images/shop/packet_space_closed.png').convert_alpha()
+packet_mario_img = pygame.image.load('images/shop/packet_mario.png').convert_alpha()
+packet_mario_selected_img = pygame.image.load('images/shop/packet_mario_selected.png').convert_alpha()
+
+yes_img = pygame.image.load('images/menu/yes_btn.png').convert_alpha()
+no_img = pygame.image.load('images/menu/no_btn.png').convert_alpha()
+
+
 
 background_image = pygame.image.load('images/menu/fon.png')
-background_image.set_colorkey(BLACK)
 
 # Загрузка скинов
-player_skin = 'images/items/minecraft_steve.jpg'
+player_skin = 'images/items/player_mario.png'
 player_image = pygame.image.load(player_skin)
 player_rect = player_image.get_rect()
-enemy_skin = 'images/items/minecraft_crepper.jpg'
+enemy_skin = 'images/items/enemy_mushr.png'
 enemy_image = pygame.image.load(enemy_skin)
-friend_skin = 'images/items/friend_diamond.png'
+friend_skin = 'images/items/friend_coin.png'
 friend_image = pygame.image.load(friend_skin)
 
 # Устанавливаем кнопки
@@ -69,16 +78,24 @@ setting_button = button.Button(420, 340, setting_img, 1.6)
 quit_button = button.Button(420, 430, quit_img, 1.6)
 back_to_menu_button = button.Button(420, 430, back_to_menu_img, 1.6)
 shop_button = button.Button(860, 560, shop_img, 0.8)
-shop1_button = button.Button(100, 100, shop1_img, 0.5)
-packet_minecraft_button = button.Button(100, 200, packet_minecraft_img, 1)
-packet_minecraft_selected_button = button.Button(100, 200, packet_minecraft_selected_img, 1)
+packet_mario_button = button.Button(324, 100, packet_mario_img, 1)
+packet_mario_selected_button = button.Button(324, 100, packet_mario_selected_img, 1)
+packet_minecraft_button = button.Button(474, 100, packet_minecraft_img, 1)
+packet_minecraft_closed_button = button.Button(474, 100, packet_minecraft_closed_img, 1)
+packet_minecraft_selected_button = button.Button(474, 100, packet_minecraft_selected_img, 1)
+packet_space_button = button.Button(624, 100, packet_space_img, 1)
+packet_space_closed_button = button.Button(624, 100, packet_space_closed_img, 1)
+packet_space_selected_button = button.Button(624, 100, packet_space_selected_img, 1)
+
+yes_button = button.Button(230, 200, yes_img, 0.15)
+no_button = button.Button(660, 200, no_img, 0.15)
 
 # Музыка
 # Логика такова: если мы запускаем игру из основного меню (с открытием игры или выйдя в него), то песня начинается заново
 # если мы запускаем игру кнопкой restart, то песня продолжается с того момента, на котором игрок умер
 # если игрок заходит в меню, то после выхода из него песня продолжается с того места, с которого была остановлена
 volume = 1
-pygame.mixer.music.load('sounds/music_background.mp3')
+pygame.mixer.music.load('sounds/undead.mp3')
 pygame.mixer.music.set_volume(volume)
 game_over = pygame.mixer.Sound('sounds/game_over.mp3')
 game_over.set_volume(volume)
@@ -86,7 +103,12 @@ take_friend = pygame.mixer.Sound('sounds/take_sound.mp3')
 take_friend.set_volume(volume)
 
 # Флаги для магазина
-flag_mine = True
+flag_mario = True
+
+flag_mine = False
+flag_mine_buy = True
+flag_mine_is = False
+
 flag_rocket = False
 flag_rocket_buy = True
 flag_rocket_is = False
@@ -112,7 +134,7 @@ def drawText(text, font, surface, x, y, color):
     textrect.topleft = (x, y)
     surface.blit(textobj, textrect)
 
-
+# Настройки    НЕДОДЕЛАНО
 def settings_menu_after_death():
     loudness = 0.1
     while True:
@@ -155,84 +177,146 @@ def settings():
         pygame.mixer.music.set_volume(volume + loudness)'''
     pygame.display.update()
 
-
-def check():
+# Покупка скина
+def check(player_image, player_rect, player_skin, enemy_image, friend_image, flag_of_check):
+    global flag_rocket, flag_mine
+    global flag_mine_is, flag_mine_buy
+    global flag_rocket_is, flag_rocket_buy, all_scores
+    no_points = False
     while True:
         screen.fill(BLACK)
-        drawText('Вы уверены, что хотите купить?', font, screen, 10, 50, WHITE)
-        drawText('ДА', font, screen, 10, 90, WHITE)
-        drawText('НЕТ', font, screen, 10, 130, WHITE)
+        back_to_menu_button.draw(screen)
+        yes_button.draw(screen)
+        no_button.draw(screen)
+        drawText('Вы уверены, что хотите купить?', font, screen, 240, 50, WHITE)
+        if no_points:
+            drawText('Не хватает очков', font, screen, 174, 346, RED)
         for event in pygame.event.get():
             # отслеживаем нажатие кнопок
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
+            if flag_of_check == 'space':
+                if yes_button.clicked_on_btn() or (event.type == KEYDOWN and event.key == K_RETURN):
+                    if all_scores >= 20:
+                        all_scores -= 20
+                        flag_rocket_is = True
+                        flag_rocket_buy = False
+                        flag_rocket = True
+                        flag_mine = False
+                        player_skin = 'images/items/player_rocket.png'
+                        player_image = pygame.image.load(player_skin)
+                        player_rect = player_image.get_rect()
+                        enemy_skin = 'images/items/enemy_asteroid.png'
+                        enemy_image = pygame.image.load(enemy_skin)
+                        friend_skin = 'images/items/friend_star.png'
+                        friend_image = pygame.image.load(friend_skin)
+                        shop(player_image, player_rect, player_skin, enemy_image, friend_image)
+                    else:
+                        no_points = True
+                if no_button.clicked_on_btn() or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                    shop(player_image, player_rect, player_skin, enemy_image, friend_image)
+                if back_to_menu_button.clicked_on_btn():
+                    shop(player_image, player_rect, player_skin, enemy_image, friend_image)
+            if flag_of_check == 'mine':
+                if yes_button.clicked_on_btn() or (event.type == KEYDOWN and event.key == K_RETURN):
+                    if all_scores >= 10:
+                        all_scores -= 10
+                        flag_mine_is = True
+                        flag_mine_buy = False
+                        flag_mine = True
+                        player_skin = 'images/items/minecraft_steve.jpg'
+                        player_image = pygame.image.load(player_skin)
+                        player_rect = player_image.get_rect()
+                        enemy_skin = 'images/items/minecraft_crepper.jpg'
+                        enemy_image = pygame.image.load(enemy_skin)
+                        friend_skin = 'images/items/friend_diamond.png'
+                        friend_image = pygame.image.load(friend_skin)
+                        shop(player_image, player_rect, player_skin, enemy_image, friend_image)
+                    else:
+                        no_points = True
+                if no_button.clicked_on_btn() or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                    shop(player_image, player_rect, player_skin, enemy_image, friend_image)
+                if back_to_menu_button.clicked_on_btn():
+                    shop(player_image, player_rect, player_skin, enemy_image, friend_image)
         pygame.display.update()
-        '''if yes:
-            all_scores -= 10
-            flag_mine = False
-            flag_rocket = True
-            player_skin = 'images/items/player_rocket.png'
-            player_image = pygame.image.load(player_skin)
-            player_rect = player_image.get_rect()
-            enemy_skin = 'images/items/enemy_meteor.png'
-            enemy_image = pygame.image.load(enemy_skin)
-            friend_skin = 'images/items/friend_star.png'
-            friend_image = pygame.image.load(friend_skin)
-            flag_rocket_buy = False
-            flag_rocket_is = True
-                '''
-        """if no:
-            back to shop
-            """
-        
 
 # Магазин для выбора скинов
 def shop(player_image, player_rect, player_skin, enemy_image, friend_image):
     global flag_rocket
     global flag_mine
+    global flag_mine_buy
+    global flag_mine_is
     global flag_rocket_buy
     global flag_rocket_is
+    global flag_mario
+    global all_scores
     while True:
         screen.fill(GREEN)
         drawText('Scores: %s' % (all_scores), font, screen, 10, 50, WHITE)
-        shop1_button.draw(screen)
         back_to_menu_button.draw(screen)
+        packet_space_button.draw(screen)
         packet_minecraft_button.draw(screen)
+        packet_mario_button.draw(screen)
         if flag_rocket_buy:
-            drawText('Цена набора: 10', font, screen, 300, 100, WHITE)
+            packet_space_closed_button.draw(screen)
+            drawText('20$', font, screen, 646, 204, WHITE)
+        if flag_mine_buy:
+            drawText('10$', font, screen, 496, 204, WHITE)
+            packet_minecraft_closed_button.draw(screen)
         if flag_mine:
             packet_minecraft_selected_button.draw(screen)
         elif flag_rocket:
-            resume_button.draw(screen)
+            packet_space_selected_button.draw(screen)
+        elif flag_mario:
+            packet_mario_selected_button.draw(screen)
         for event in pygame.event.get():
             # отслеживаем нажатие кнопок
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
+            if event.type == KEYDOWN and event.key == ord(';'):
+                all_scores += 100000
             if back_to_menu_button.draw(screen):
                 main_menu(player_image, player_rect, player_skin, enemy_image, friend_image)
-            if shop1_button.clicked_on_btn() and flag_rocket_buy:
-                check()
-            if packet_minecraft_button.clicked_on_btn():
-                print('mine')
-                player_skin = 'images/items/minecraft_steve.jpg'
+            if packet_space_button.clicked_on_btn() and flag_rocket_buy:
+                flag_of_check = 'space'
+                check(player_image, player_rect, player_skin, enemy_image, friend_image, flag_of_check)
+            if packet_minecraft_button.clicked_on_btn() and flag_mine_buy:
+                flag_of_check = 'mine'
+                check(player_image, player_rect, player_skin, enemy_image, friend_image, flag_of_check)
+            if packet_mario_button.clicked_on_btn():
+                player_skin = 'images/items/player_mario.png'
                 player_image = pygame.image.load(player_skin)
                 player_rect = player_image.get_rect()
-                enemy_skin = 'images/items/minecraft_crepper.jpg'
+                enemy_skin = 'images/items/enemy_mushr.png'
                 enemy_image = pygame.image.load(enemy_skin)
-                friend_skin = 'images/items/friend_diamond.png'
+                friend_skin = 'images/items/friend_coin.png'
                 friend_image = pygame.image.load(friend_skin)
-                flag_mine = True
+                flag_mario = True
+                flag_mine = False
                 flag_rocket = False
+            if flag_mine_is:
+                if packet_minecraft_button.clicked_on_btn():
+                    player_skin = 'images/items/minecraft_steve.jpg'
+                    player_image = pygame.image.load(player_skin)
+                    player_rect = player_image.get_rect()
+                    enemy_skin = 'images/items/minecraft_crepper.jpg'
+                    enemy_image = pygame.image.load(enemy_skin)
+                    friend_skin = 'images/items/friend_diamond.png'
+                    friend_image = pygame.image.load(friend_skin)
+                    flag_mine = True
+                    flag_rocket = False
+                    flag_mario = False
             if flag_rocket_is:
-                if shop1_button.clicked_on_btn():
+                if packet_space_button.clicked_on_btn():
                     flag_mine = False
                     flag_rocket = True
+                    flag_mario = False
                     player_skin = 'images/items/player_rocket.png'
                     player_image = pygame.image.load(player_skin)
                     player_rect = player_image.get_rect()
-                    enemy_skin = 'images/items/enemy_meteor.png'
+                    enemy_skin = 'images/items/enemy_asteroid.png'
                     enemy_image = pygame.image.load(enemy_skin)
                     friend_skin = 'images/items/friend_star.png'
                     friend_image = pygame.image.load(friend_skin)
@@ -275,17 +359,14 @@ def menu_after_death(player_image, player_rect, player_skin, enemy_image, friend
 # Меню в которое мы выходим из "меню" при помощи esc или из "меню" после смерти
 def main_menu(player_image, player_rect, player_skin, enemy_image, friend_image):
     while True:
-        
         screen.fill(LIGHTBLUE)
         drawText('Tiny Spark', font_menu_name, screen, 346, 140, BLUE)
         for event in pygame.event.get():
             if event.type == QUIT:
                         pygame.quit()
                         sys.exit()
-            
             if start_button.draw(screen):
                 pygame.mixer.music.play()
-
                 game(player_image, player_rect, player_skin, enemy_image, friend_image)
             if setting_button.draw(screen):
                 settings()
@@ -317,8 +398,6 @@ while running:
     def game(player_image, player_rect, player_skin, enemy_image, friend_image):
         global top_score
         global all_scores
-        
-
         pygame.mouse.set_visible(False)
         while True:
             enemy = []
@@ -335,7 +414,7 @@ while running:
             slowCheat = False
             EnemyCounter = 0
             FriendCounter = 0
-            while True:
+            while True:                
                 for event in pygame.event.get():
                     if event.type == QUIT:
                         pygame.quit()
@@ -487,9 +566,9 @@ while running:
                     break
 
                 Clock.tick(FPS)
+
             game_over.play()
             take_friend.stop()
-
             menu_after_death(player_image, player_rect, player_skin, enemy_image, friend_image)
 
             pygame.display.update()
