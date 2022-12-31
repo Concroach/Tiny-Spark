@@ -27,6 +27,8 @@ class save():
                 return False
             if name == 'flag_rocket_buy':
                 return True
+            if name == 'volume':
+                return 1
             else:
                 return 0
 

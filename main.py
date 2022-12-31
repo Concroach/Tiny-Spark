@@ -14,10 +14,10 @@ FRIENDSIZE = 35
 ENEMYMAXSIZE = 40
 FRIENDMAXSIZE = 50
 ENEMYMINSPEED = 1
-ENEMYMAXSPEED = 8
+ENEMYMAXSPEED = 5
 ADDNEWENEMYRATE = 6
 ADDNEWFRIENDRATE = 30
-PLAYERMOVERATE = 6
+PLAYERMOVERATE = 4
 
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 700
@@ -59,6 +59,9 @@ packet_mario_selected_img = pygame.image.load('images/shop/packet_mario_selected
 yes_img = pygame.image.load('images/menu/yes_btn.png').convert_alpha()
 no_img = pygame.image.load('images/menu/no_btn.png').convert_alpha()
 
+turn_down_img = pygame.image.load('images/menu/volume_minus.png').convert_alpha()
+turn_up_img = pygame.image.load('images/menu/volume_plus.png').convert_alpha()
+
 background_image = pygame.image.load('images/menu/fon.png')
 
 # Загрузка скинов
@@ -72,11 +75,14 @@ friend_image = pygame.image.load(friend_skin)
 
 # Устанавливаем кнопки
 resume_button = button.Button(420, 160, resume_img, 1.6)
+resume_button_for_pause = button.Button(420, 250, resume_img, 1.6)
 start_button = button.Button(420, 250, start_img, 1.6)
 restart_button = button.Button(420, 250, restart_img, 1.6)
+restart_button_for_pause = button.Button(420, 340, restart_img, 1.6)
 setting_button = button.Button(420, 340, setting_img, 1.6)
 quit_button = button.Button(420, 430, quit_img, 1.6)
 back_to_menu_button = button.Button(420, 430, back_to_menu_img, 1.6)
+back_to_menu_button_for_pause = button.Button(420, 430, back_to_menu_img, 1.6)
 shop_button = button.Button(860, 560, shop_img, 0.8)
 packet_mario_button = button.Button(324, 100, packet_mario_img, 1)
 packet_mario_selected_button = button.Button(324, 100, packet_mario_selected_img, 1)
@@ -90,11 +96,14 @@ packet_space_selected_button = button.Button(624, 100, packet_space_selected_img
 yes_button = button.Button(230, 200, yes_img, 0.15)
 no_button = button.Button(660, 200, no_img, 0.15)
 
+turn_down = button.Button(230, 200, turn_down_img, 0.15)
+turn_up = button.Button(430, 200, turn_up_img, 0.15)
+
 # Музыка
 # Логика такова: если мы запускаем игру из основного меню (с открытием игры или выйдя в него), то песня начинается заново
 # если мы запускаем игру кнопкой restart, то песня продолжается с того момента, на котором игрок умер
 # если игрок заходит в меню, то после выхода из него песня продолжается с того места, с которого была остановлена
-volume = 1
+volume = save_data.get('volume')
 pygame.mixer.music.load('sounds/undead.mp3')
 pygame.mixer.music.set_volume(volume)
 game_over = pygame.mixer.Sound('sounds/game_over.mp3')
@@ -134,22 +143,47 @@ def drawText(text, font, surface, x, y, color):
     textrect.topleft = (x, y)
     surface.blit(textobj, textrect)
 
-# Настройки    НЕДОДЕЛАНО
+# Настройки звука
 def settings_menu_after_death():
-    loudness = 0.1
+    global volume
     while True:
         screen.fill(BLACK)
+        turn_down.draw(screen)
+        turn_up.draw(screen)
+        back_to_menu_button.draw(screen)
         for event in pygame.event.get():
             if event.type == QUIT:
                 save_files()
                 pygame.quit()
                 sys.exit()
+            if turn_down.clicked_on_btn():
+                if volume > 3.608224830031759e-16:
+                    volume -= 0.1
+                else:
+                    pass
+                print(volume)
+                take_friend.set_volume(volume)
+                game_over.set_volume(volume)
+                pygame.mixer.music.set_volume(volume)
+            if turn_up.clicked_on_btn():
+                if volume <= 1:
+                    volume += 0.1
+                else:
+                    pass
+                print(volume)
+                take_friend.set_volume(volume)
+                game_over.set_volume(volume)
+                pygame.mixer.music.set_volume(volume)
+            if back_to_menu_button.draw(screen):
+                menu_after_death(player_image, player_rect, player_skin, enemy_image, friend_image)
         pygame.display.update()
 
 def settings_main_menu():
-    loudness = 0.1
+    global volume
     while True:
         screen.fill(BLACK)
+        turn_down.draw(screen)
+        turn_up.draw(screen)
         back_to_menu_button.draw(screen)
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -157,33 +191,37 @@ def settings_main_menu():
                 pygame.quit()
                 sys.exit()
             if back_to_menu_button.draw(screen):
+                save_files()
                 main_menu(player_image, player_rect, player_skin, enemy_image, friend_image)
+            if turn_down.clicked_on_btn():
+                if volume > 3.608224830031759e-16:
+                    volume -= 0.1
+                else:
+                    pass
+                print(volume)
+                take_friend.set_volume(volume)
+                game_over.set_volume(volume)
+                pygame.mixer.music.set_volume(volume)
+            if turn_up.clicked_on_btn():
+                if volume <= 1:
+                    volume += 0.1
+                else:
+                    pass
+                print(volume)
+                take_friend.set_volume(volume)
+                game_over.set_volume(volume)
+                pygame.mixer.music.set_volume(volume)
+
         pygame.display.update()
 
-def settings_menu():
-    while True:
-        screen.fill(BLACK)
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                save_files()
-                pygame.quit()
-                sys.exit()
-        
-
-def settings():
-    loudness = 0.1
-
-    
-    '''if turn_down.clicked_on_btn():
-        pygame.mixer.music.set_volume(volume - loudness)
-    elif turn_up.clicked_on_btn():
-        pygame.mixer.music.set_volume(volume + loudness)'''
-    pygame.display.update()
+    # если volume = 1 выводим изображение со всеми палочками и тд
 
 # Функция сохранения очков, скинов и их состояний
 def save_files():
     save_data.save('max', top_score)
     save_data.save('all', all_scores)
+    save_data.save('volume', volume)
+    print(volume)
     save_data.save('flag_mario', flag_mario)
     save_data.save('flag_rocket', flag_rocket)
     save_data.save('flag_rocket_is', flag_rocket_is)
@@ -214,8 +252,8 @@ def check(player_image, player_rect, player_skin, enemy_image, friend_image, fla
                 sys.exit()
             if flag_of_check == 'space':
                 if yes_button.clicked_on_btn() or (event.type == KEYDOWN and event.key == K_RETURN):
-                    if all_scores >= 20:
-                        all_scores -= 20
+                    if all_scores >= 50:
+                        all_scores -= 50
                         flag_rocket_is = True
                         flag_rocket_buy = False
                         flag_rocket = True
@@ -236,8 +274,8 @@ def check(player_image, player_rect, player_skin, enemy_image, friend_image, fla
                     shop(player_image, player_rect, player_skin, enemy_image, friend_image)
             if flag_of_check == 'mine':
                 if yes_button.clicked_on_btn() or (event.type == KEYDOWN and event.key == K_RETURN):
-                    if all_scores >= 10:
-                        all_scores -= 10
+                    if all_scores >= 30:
+                        all_scores -= 30
                         flag_mine_is = True
                         flag_mine_buy = False
                         flag_mine = True
@@ -390,7 +428,7 @@ def main_menu(player_image, player_rect, player_skin, enemy_image, friend_image)
                 pygame.mixer.music.play()
                 game(player_image, player_rect, player_skin, enemy_image, friend_image)
             if setting_button.draw(screen):
-                settings()
+                settings_main_menu()
             if quit_button.draw(screen):
                 save_files()
                 pygame.quit()
@@ -399,8 +437,7 @@ def main_menu(player_image, player_rect, player_skin, enemy_image, friend_image)
                 shop(player_image, player_rect, player_skin, enemy_image, friend_image)
             pygame.display.flip()
 
-'''top_score = 0
-all_scores = 0'''
+
 top_score = save_data.get('max')
 all_scores = save_data.get('all')
 
@@ -463,11 +500,11 @@ while running:
                             x = 0
                             while pause:
                                 pygame.mouse.set_visible(True)
-                                drawText('PAUSE', font_menu_name, screen, 408, 80, GREEN)
-                                resume_button.draw(screen)
-                                restart_button.draw(screen)
-                                setting_button.draw(screen)
-                                back_to_menu_button.draw(screen)
+                                drawText('PAUSE', font_menu_name, screen, 408, 150, GREEN)
+                                resume_button_for_pause.draw(screen)
+                                restart_button_for_pause.draw(screen)
+                                # setting_button.draw(screen)
+                                back_to_menu_button_for_pause.draw(screen)
                                 pygame.display.flip()
                                 for event in pygame.event.get():
                                     # отслеживаем нажатие кнопок
@@ -485,18 +522,18 @@ while running:
                                         else:
                                             pause = True
                                             pygame.mixer.music.pause()
-                                    if resume_button.draw(screen):
+                                    if resume_button_for_pause.draw(screen):
                                         pause = False    
                                         pygame.mouse.set_visible(False)
                                         pygame.mixer.music.unpause()
-                                    if restart_button.draw(screen):
+                                    if restart_button_for_pause.draw(screen):
                                         if score > top_score:
                                             top_score = score
                                         pygame.mixer.music.unpause()
                                         game(player_image, player_rect, player_skin, enemy_image, friend_image)
-                                    if setting_button.draw(screen):
-                                        settings()
-                                    if back_to_menu_button.draw(screen):
+                                    '''if setting_button.draw(screen):
+                                        settings()'''
+                                    if back_to_menu_button_for_pause.draw(screen):
                                         if score > top_score:
                                             top_score = score
                                         main_menu(player_image, player_rect, player_skin, enemy_image, friend_image)
