@@ -9,14 +9,14 @@ from save import *
 
 # Константы
 FPS = 60
-ENEMYSIZE = 15
+ENEMYSIZE = 20
 FRIENDSIZE = 35
 ENEMYMAXSIZE = 40
 FRIENDMAXSIZE = 50
 ENEMYMINSPEED = 1
 ENEMYMAXSPEED = 5
 ADDNEWENEMYRATE = 6
-ADDNEWFRIENDRATE = 30
+ADDNEWFRIENDRATE = 10
 PLAYERMOVERATE = 4
 
 SCREEN_WIDTH = 1000
@@ -59,11 +59,23 @@ packet_mario_selected_img = pygame.image.load('images/shop/packet_mario_selected
 yes_img = pygame.image.load('images/menu/yes_btn.png').convert_alpha()
 no_img = pygame.image.load('images/menu/no_btn.png').convert_alpha()
 
-turn_down_img = pygame.image.load('images/menu/volume_minus.png').convert_alpha()
-turn_up_img = pygame.image.load('images/menu/volume_plus.png').convert_alpha()
+turn_down_img = pygame.image.load('images/menu/turn_down.png').convert_alpha()
+turn_up_img = pygame.image.load('images/menu/turn_up.png').convert_alpha()
 
 background_image = pygame.image.load('images/menu/fon.png')
-
+background_shop = pygame.image.load('images/menu/background_shop.png')
+background_settings = pygame.image.load('images/menu/background_settings.png')
+volume_img = pygame.image.load('images/menu/volume.png').convert_alpha()
+zerofrom10 = pygame.image.load('images/menu/0from10.png').convert_alpha()
+onefrom10 = pygame.image.load('images/menu/1from10.png').convert_alpha()
+twofrom10 = pygame.image.load('images/menu/2from10.png').convert_alpha()
+threefrom10 = pygame.image.load('images/menu/3from10.png').convert_alpha()
+fourfrom10 = pygame.image.load('images/menu/4from10.png').convert_alpha()
+fivefrom10 = pygame.image.load('images/menu/5from10.png').convert_alpha()
+sixfrom10 = pygame.image.load('images/menu/6from10.png').convert_alpha()
+sevenfrom10 = pygame.image.load('images/menu/7from10.png').convert_alpha()
+eightfrom10 = pygame.image.load('images/menu/8from10.png').convert_alpha()
+ninefrom10 = pygame.image.load('images/menu/9from10.png').convert_alpha()
 # Загрузка скинов
 player_skin = 'images/items/player_mario.png'
 player_image = pygame.image.load(player_skin)
@@ -96,15 +108,15 @@ packet_space_selected_button = button.Button(624, 100, packet_space_selected_img
 yes_button = button.Button(230, 200, yes_img, 0.15)
 no_button = button.Button(660, 200, no_img, 0.15)
 
-turn_down = button.Button(230, 200, turn_down_img, 0.15)
-turn_up = button.Button(430, 200, turn_up_img, 0.15)
+turn_down = button.Button(166, 200, turn_down_img, 0.25)
+turn_up = button.Button(730, 200, turn_up_img, 0.25)
 
 # Музыка
 # Логика такова: если мы запускаем игру из основного меню (с открытием игры или выйдя в него), то песня начинается заново
 # если мы запускаем игру кнопкой restart, то песня продолжается с того момента, на котором игрок умер
 # если игрок заходит в меню, то после выхода из него песня продолжается с того места, с которого была остановлена
 volume = save_data.get('volume')
-pygame.mixer.music.load('sounds/undead.mp3')
+pygame.mixer.music.load('sounds/music_background.mp3')
 pygame.mixer.music.set_volume(volume)
 game_over = pygame.mixer.Sound('sounds/game_over.mp3')
 game_over.set_volume(volume)
@@ -147,7 +159,7 @@ def drawText(text, font, surface, x, y, color):
 def settings_menu_after_death():
     global volume
     while True:
-        screen.fill(BLACK)
+        screen.blit(background_settings, (0, 0))
         turn_down.draw(screen)
         turn_up.draw(screen)
         back_to_menu_button.draw(screen)
@@ -161,7 +173,6 @@ def settings_menu_after_death():
                     volume -= 0.1
                 else:
                     pass
-                print(volume)
                 take_friend.set_volume(volume)
                 game_over.set_volume(volume)
                 pygame.mixer.music.set_volume(volume)
@@ -170,18 +181,39 @@ def settings_menu_after_death():
                     volume += 0.1
                 else:
                     pass
-                print(volume)
                 take_friend.set_volume(volume)
                 game_over.set_volume(volume)
                 pygame.mixer.music.set_volume(volume)
             if back_to_menu_button.draw(screen):
                 menu_after_death(player_image, player_rect, player_skin, enemy_image, friend_image)
+        if volume == 3.608224830031759e-16:
+            screen.blit(zerofrom10, (390, 220))
+        elif volume == 0.10000000000000037:
+            screen.blit(onefrom10, (390, 220))
+        elif volume == 0.20000000000000037:
+            screen.blit(twofrom10, (390, 220))
+        elif volume == 0.3000000000000004:
+            screen.blit(threefrom10, (390, 220))
+        elif volume == 0.40000000000000036:
+            screen.blit(fourfrom10, (390, 220))
+        elif volume == 0.5000000000000003:
+            screen.blit(fivefrom10, (390, 220))
+        elif volume == 0.6000000000000003:
+            screen.blit(sixfrom10, (390, 220))
+        elif volume == 0.7000000000000003:
+            screen.blit(sevenfrom10, (390, 220))
+        elif volume == 0.8000000000000003:
+            screen.blit(eightfrom10, (390, 220))
+        elif volume == 0.9000000000000002:
+            screen.blit(ninefrom10, (390, 220))
+        elif volume == 1.0000000000000002:
+            screen.blit(volume_img, (390, 220))
         pygame.display.update()
 
 def settings_main_menu():
     global volume
     while True:
-        screen.fill(BLACK)
+        screen.blit(background_settings, (0, 0))
         turn_down.draw(screen)
         turn_up.draw(screen)
         back_to_menu_button.draw(screen)
@@ -198,7 +230,6 @@ def settings_main_menu():
                     volume -= 0.1
                 else:
                     pass
-                print(volume)
                 take_friend.set_volume(volume)
                 game_over.set_volume(volume)
                 pygame.mixer.music.set_volume(volume)
@@ -207,11 +238,31 @@ def settings_main_menu():
                     volume += 0.1
                 else:
                     pass
-                print(volume)
                 take_friend.set_volume(volume)
                 game_over.set_volume(volume)
                 pygame.mixer.music.set_volume(volume)
-
+        if volume == 3.608224830031759e-16:
+            screen.blit(zerofrom10, (390, 220))
+        elif volume == 0.10000000000000037:
+            screen.blit(onefrom10, (390, 220))
+        elif volume == 0.20000000000000037:
+            screen.blit(twofrom10, (390, 220))
+        elif volume == 0.3000000000000004:
+            screen.blit(threefrom10, (390, 220))
+        elif volume == 0.40000000000000036:
+            screen.blit(fourfrom10, (390, 220))
+        elif volume == 0.5000000000000003:
+            screen.blit(fivefrom10, (390, 220))
+        elif volume == 0.6000000000000003:
+            screen.blit(sixfrom10, (390, 220))
+        elif volume == 0.7000000000000003:
+            screen.blit(sevenfrom10, (390, 220))
+        elif volume == 0.8000000000000003:
+            screen.blit(eightfrom10, (390, 220))
+        elif volume == 0.9000000000000002:
+            screen.blit(ninefrom10, (390, 220))
+        elif volume == 1.0000000000000002:
+            screen.blit(volume_img, (390, 220))
         pygame.display.update()
 
     # если volume = 1 выводим изображение со всеми палочками и тд
@@ -221,7 +272,6 @@ def save_files():
     save_data.save('max', top_score)
     save_data.save('all', all_scores)
     save_data.save('volume', volume)
-    print(volume)
     save_data.save('flag_mario', flag_mario)
     save_data.save('flag_rocket', flag_rocket)
     save_data.save('flag_rocket_is', flag_rocket_is)
@@ -306,17 +356,17 @@ def shop(player_image, player_rect, player_skin, enemy_image, friend_image):
     global flag_mario
     global all_scores
     while True:
-        screen.fill(GREEN)
-        drawText('Scores: %s' % (all_scores), font, screen, 10, 50, WHITE)
+        screen.blit(background_shop, (0, 0))
+        drawText('Scores: %s' % (all_scores), font, screen, 400, 50, WHITE)
         back_to_menu_button.draw(screen)
         packet_space_button.draw(screen)
         packet_minecraft_button.draw(screen)
         packet_mario_button.draw(screen)
         if flag_rocket_buy:
             packet_space_closed_button.draw(screen)
-            drawText('20$', font, screen, 646, 204, WHITE)
+            drawText('50$', font, screen, 646, 204, WHITE)
         if flag_mine_buy:
-            drawText('10$', font, screen, 496, 204, WHITE)
+            drawText('30$', font, screen, 496, 204, WHITE)
             packet_minecraft_closed_button.draw(screen)
         if flag_mine:
             packet_minecraft_selected_button.draw(screen)
@@ -463,6 +513,30 @@ while running:
         global all_scores
         pygame.mouse.set_visible(False)
         while True:
+            if flag_mario:
+                player_skin = 'images/items/player_mario.png'
+                player_image = pygame.image.load(player_skin)
+                player_rect = player_image.get_rect()
+                enemy_skin = 'images/items/enemy_mushr.png'
+                enemy_image = pygame.image.load(enemy_skin)
+                friend_skin = 'images/items/friend_coin.png'
+                friend_image = pygame.image.load(friend_skin)
+            if flag_mine:
+                player_skin = 'images/items/minecraft_steve.jpg'
+                player_image = pygame.image.load(player_skin)
+                player_rect = player_image.get_rect()
+                enemy_skin = 'images/items/minecraft_crepper.jpg'
+                enemy_image = pygame.image.load(enemy_skin)
+                friend_skin = 'images/items/friend_diamond.png'
+                friend_image = pygame.image.load(friend_skin)
+            if flag_rocket:
+                player_skin = 'images/items/player_rocket.png'
+                player_image = pygame.image.load(player_skin)
+                player_rect = player_image.get_rect()
+                enemy_skin = 'images/items/enemy_asteroid.png'
+                enemy_image = pygame.image.load(enemy_skin)
+                friend_skin = 'images/items/friend_star.png'
+                friend_image = pygame.image.load(friend_skin)
             enemy = []
             friend = []
             score = 0
