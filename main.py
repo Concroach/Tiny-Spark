@@ -7,10 +7,6 @@ from PIL import Image
 from pygame.locals import *
 from save import *
 
-# Придумать анимацию
-# Доделать shop
-# Добавить песни
-
 
 # Константы
 FPS = 60
@@ -644,17 +640,20 @@ top_score_lvl2 = save_data.get('max_lvl2')
 all_scores = save_data.get('all')
 
 if flag_music_defoult:
-        pygame.mixer.music.load('sounds/music_background.mp3')
-        pygame.mixer.music.set_volume(volume)
+    pygame.mixer.music.load('sounds/music_background.mp3')
+    pygame.mixer.music.set_volume(volume)
 if flag_music:
     pygame.mixer.music.load('sounds/undead.mp3')
+    pygame.mixer.music.set_volume(volume)
+if flag_music_hotline_1:
+    pygame.mixer.music.load('sounds/hotline_1.mp3')
     pygame.mixer.music.set_volume(volume)
 
 running = True
 while running:
     screen.fill(LIGHTBLUE)
     drawText('Tiny Spark', font_menu_name, screen, 346, 140, BLUE)
-    
+
     if start_button.draw(screen):
         pygame.mixer.music.play()
         game()
