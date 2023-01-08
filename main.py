@@ -7,17 +7,13 @@ from PIL import Image
 from pygame.locals import *
 from save import *
 
+# Придумать анимацию
+# Доделать shop
+# Добавить песни
+
+
 # Константы
 FPS = 60
-ENEMYSIZE = 20
-FRIENDSIZE = 35
-ENEMYMAXSIZE = 40
-FRIENDMAXSIZE = 50
-ENEMYMINSPEED = 1
-ENEMYMAXSPEED = 5
-ADDNEWENEMYRATE = 6
-ADDNEWFRIENDRATE = 10
-PLAYERMOVERATE = 4
 
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 700
@@ -55,6 +51,20 @@ packet_space_selected_img = pygame.image.load('images/shop/packet_space_selected
 packet_space_closed_img = pygame.image.load('images/shop/packet_space_closed.png').convert_alpha()
 packet_mario_img = pygame.image.load('images/shop/packet_mario.png').convert_alpha()
 packet_mario_selected_img = pygame.image.load('images/shop/packet_mario_selected.png').convert_alpha()
+game_defoult_img = pygame.image.load('images/shop/level_1.png').convert_alpha()
+game_defoult_selected_img = pygame.image.load('images/shop/level_1_selected.png').convert_alpha()
+game_img = pygame.image.load('images/shop/level_2.png').convert_alpha()
+game_closed_img = pygame.image.load('images/shop/level_2_close.png').convert_alpha()
+game_selected_img = pygame.image.load('images/shop/level_2_selected.png').convert_alpha()
+music_defoult_img = pygame.image.load('images/shop/defoult_music_img.png').convert_alpha()
+music_defoult_selected_img = pygame.image.load('images/shop/defoult_music_selected_img.png').convert_alpha()
+undead_img = pygame.image.load('images/shop/undead_img.png').convert_alpha()
+undead_closed_img = pygame.image.load('images/shop/undead_close_img.png').convert_alpha()
+undead_selected_img = pygame.image.load('images/shop/undead_selected_img.png').convert_alpha()
+hotline_1_img = pygame.image.load('images/shop/hotline_1_img.png').convert_alpha()
+hotline_1_closed_img = pygame.image.load('images/shop/hotline_1_close_img.png').convert_alpha()
+hotline_1_selected_img = pygame.image.load('images/shop/hotline_1_selected_img.png').convert_alpha()
+
 
 yes_img = pygame.image.load('images/menu/yes_btn.png').convert_alpha()
 no_img = pygame.image.load('images/menu/no_btn.png').convert_alpha()
@@ -76,14 +86,8 @@ sixfrom10 = pygame.image.load('images/menu/6from10.png').convert_alpha()
 sevenfrom10 = pygame.image.load('images/menu/7from10.png').convert_alpha()
 eightfrom10 = pygame.image.load('images/menu/8from10.png').convert_alpha()
 ninefrom10 = pygame.image.load('images/menu/9from10.png').convert_alpha()
-# Загрузка скинов
-player_skin = 'images/items/player_mario.png'
-player_image = pygame.image.load(player_skin)
-player_rect = player_image.get_rect()
-enemy_skin = 'images/items/enemy_mushr.png'
-enemy_image = pygame.image.load(enemy_skin)
-friend_skin = 'images/items/friend_coin.png'
-friend_image = pygame.image.load(friend_skin)
+
+
 
 # Устанавливаем кнопки
 resume_button = button.Button(420, 160, resume_img, 1.6)
@@ -104,6 +108,20 @@ packet_minecraft_selected_button = button.Button(474, 100, packet_minecraft_sele
 packet_space_button = button.Button(624, 100, packet_space_img, 1)
 packet_space_closed_button = button.Button(624, 100, packet_space_closed_img, 1)
 packet_space_selected_button = button.Button(624, 100, packet_space_selected_img, 1)
+game_defoult_button = button.Button(174, 270, game_defoult_img, 1)
+game_defoult_selected_button = button.Button(174, 270, game_defoult_selected_img, 1)
+game_button = button.Button(324, 270, game_img, 1)
+game_closed_button = button.Button(324, 270, game_closed_img, 1)
+game_selected_button = button.Button(324, 270, game_selected_img, 1)
+music_defoult_button = button.Button(550, 270, music_defoult_img, 1)
+music_defoult_selected_button = button.Button(550, 270, music_defoult_selected_img, 1)
+undead_button = button.Button(670, 270, undead_img, 1)
+undead_closed_button = button.Button(670, 270, undead_closed_img, 1)
+undead_selected_button = button.Button(670, 270, undead_selected_img, 1)
+hotline_1_button = button.Button(790, 270, hotline_1_img, 1)
+hotline_1_closed_button = button.Button(790, 270, hotline_1_closed_img, 1)
+hotline_1_selected_button = button.Button(790, 270, hotline_1_selected_img, 1)
+
 
 yes_button = button.Button(230, 200, yes_img, 0.15)
 no_button = button.Button(660, 200, no_img, 0.15)
@@ -116,8 +134,8 @@ turn_up = button.Button(730, 200, turn_up_img, 0.25)
 # если мы запускаем игру кнопкой restart, то песня продолжается с того момента, на котором игрок умер
 # если игрок заходит в меню, то после выхода из него песня продолжается с того места, с которого была остановлена
 volume = save_data.get('volume')
-pygame.mixer.music.load('sounds/music_background.mp3')
-pygame.mixer.music.set_volume(volume)
+
+
 game_over = pygame.mixer.Sound('sounds/game_over.mp3')
 game_over.set_volume(volume)
 take_friend = pygame.mixer.Sound('sounds/take_sound.mp3')
@@ -133,6 +151,19 @@ flag_mine_is = save_data.get('flag_mine_is')
 flag_rocket = save_data.get('flag_rocket')
 flag_rocket_buy = save_data.get('flag_rocket_buy')
 flag_rocket_is = save_data.get('flag_rocket_is')
+
+flag_game_defoult = save_data.get('flag_game_defoult')
+flag_game = save_data.get('flag_game')
+flag_game_is = save_data.get('flag_game_is')
+flag_game_buy = save_data.get('flag_game_buy')
+
+flag_music = save_data.get('flag_music')
+flag_music_is = save_data.get('flag_music_is')
+flag_music_buy = save_data.get('flag_music_buy')
+flag_music_defoult = save_data.get('flag_music_defoult')
+flag_music_hotline_1 = save_data.get('flag_music_hotline_1')
+flag_music_is_hotline_1 = save_data.get('flag_music_is_hotline_1')
+flag_music_buy_hotline_1 = save_data.get('flag_music_buy_hotline_1')
 
 # Соприкасание игрока с friend
 def friendhit(player_rect, friend):
@@ -158,11 +189,13 @@ def drawText(text, font, surface, x, y, color):
 # Настройки звука
 def settings_menu_after_death():
     global volume
+    font_volume = pygame.font.SysFont(None, 96)
     while True:
         screen.blit(background_settings, (0, 0))
         turn_down.draw(screen)
         turn_up.draw(screen)
         back_to_menu_button.draw(screen)
+        drawText('Volume', font_volume, screen, 384, 70, WHITE)
         for event in pygame.event.get():
             if event.type == QUIT:
                 save_files()
@@ -185,7 +218,7 @@ def settings_menu_after_death():
                 game_over.set_volume(volume)
                 pygame.mixer.music.set_volume(volume)
             if back_to_menu_button.draw(screen):
-                menu_after_death(player_image, player_rect, player_skin, enemy_image, friend_image)
+                menu_after_death()
         if volume == 3.608224830031759e-16:
             screen.blit(zerofrom10, (390, 220))
         elif volume == 0.10000000000000037:
@@ -212,11 +245,13 @@ def settings_menu_after_death():
 
 def settings_main_menu():
     global volume
+    font_volume = pygame.font.SysFont(None, 96)
     while True:
         screen.blit(background_settings, (0, 0))
         turn_down.draw(screen)
         turn_up.draw(screen)
         back_to_menu_button.draw(screen)
+        drawText('Volume', font_volume, screen, 384, 70, WHITE)
         for event in pygame.event.get():
             if event.type == QUIT:
                 save_files()
@@ -224,7 +259,7 @@ def settings_main_menu():
                 sys.exit()
             if back_to_menu_button.draw(screen):
                 save_files()
-                main_menu(player_image, player_rect, player_skin, enemy_image, friend_image)
+                main_menu()
             if turn_down.clicked_on_btn():
                 if volume > 3.608224830031759e-16:
                     volume -= 0.1
@@ -265,10 +300,20 @@ def settings_main_menu():
             screen.blit(volume_img, (390, 220))
         pygame.display.update()
 
-    # если volume = 1 выводим изображение со всеми палочками и тд
-
-# Функция сохранения очков, скинов и их состояний
+# Функция сохранения
 def save_files():
+    save_data.save('flag_music_defoult', flag_music_defoult)
+    save_data.save('flag_music', flag_music)
+    save_data.save('flag_music_is', flag_music_is)
+    save_data.save('flag_music_buy', flag_music_buy)
+    save_data.save('flag_music_hotline_1', flag_music_hotline_1)
+    save_data.save('flag_music_is_hotline_1', flag_music_is_hotline_1)
+    save_data.save('flag_music_buy_hotline_1', flag_music_buy_hotline_1)
+    save_data.save('flag_game_defoult', flag_game_defoult)
+    save_data.save('flag_game', flag_game)
+    save_data.save('flag_game_buy', flag_game_buy)
+    save_data.save('flag_game_is', flag_game_is)
+    save_data.save('max_lvl2', top_score_lvl2)
     save_data.save('max', top_score)
     save_data.save('all', all_scores)
     save_data.save('volume', volume)
@@ -280,11 +325,14 @@ def save_files():
     save_data.save('flag_mine_is', flag_mine_is)
     save_data.save('flag_mine_buy', flag_mine_buy)
 
-# Покупка скина
-def check(player_image, player_rect, player_skin, enemy_image, friend_image, flag_of_check):
+# Покупка предметов
+def check(flag_of_check):
     global flag_rocket, flag_mine
     global flag_mine_is, flag_mine_buy
-    global flag_rocket_is, flag_rocket_buy, all_scores
+    global flag_rocket_is, flag_rocket_buy, all_scores, flag_game_buy, flag_game_is, flag_game, flag_game_defoult
+    global flag_music_defoult, flag_music_buy
+    global flag_music_is, flag_music, flag_music_hotline_1
+    global flag_music_is_hotline_1, flag_music_buy_hotline_1
     no_points = False
     while True:
         screen.fill(BLACK)
@@ -295,7 +343,6 @@ def check(player_image, player_rect, player_skin, enemy_image, friend_image, fla
         if no_points:
             drawText('Не хватает очков', font, screen, 174, 346, RED)
         for event in pygame.event.get():
-            # отслеживаем нажатие кнопок
             if event.type == QUIT:
                 save_files()
                 pygame.quit()
@@ -308,20 +355,13 @@ def check(player_image, player_rect, player_skin, enemy_image, friend_image, fla
                         flag_rocket_buy = False
                         flag_rocket = True
                         flag_mine = False
-                        player_skin = 'images/items/player_rocket.png'
-                        player_image = pygame.image.load(player_skin)
-                        player_rect = player_image.get_rect()
-                        enemy_skin = 'images/items/enemy_asteroid.png'
-                        enemy_image = pygame.image.load(enemy_skin)
-                        friend_skin = 'images/items/friend_star.png'
-                        friend_image = pygame.image.load(friend_skin)
-                        shop(player_image, player_rect, player_skin, enemy_image, friend_image)
+                        shop()
                     else:
                         no_points = True
                 if no_button.clicked_on_btn() or (event.type == KEYDOWN and event.key == K_ESCAPE):
-                    shop(player_image, player_rect, player_skin, enemy_image, friend_image)
+                    shop()
                 if back_to_menu_button.clicked_on_btn():
-                    shop(player_image, player_rect, player_skin, enemy_image, friend_image)
+                    shop()
             if flag_of_check == 'mine':
                 if yes_button.clicked_on_btn() or (event.type == KEYDOWN and event.key == K_RETURN):
                     if all_scores >= 30:
@@ -329,24 +369,69 @@ def check(player_image, player_rect, player_skin, enemy_image, friend_image, fla
                         flag_mine_is = True
                         flag_mine_buy = False
                         flag_mine = True
-                        player_skin = 'images/items/minecraft_steve.jpg'
-                        player_image = pygame.image.load(player_skin)
-                        player_rect = player_image.get_rect()
-                        enemy_skin = 'images/items/minecraft_crepper.jpg'
-                        enemy_image = pygame.image.load(enemy_skin)
-                        friend_skin = 'images/items/friend_diamond.png'
-                        friend_image = pygame.image.load(friend_skin)
-                        shop(player_image, player_rect, player_skin, enemy_image, friend_image)
+                        shop()
                     else:
                         no_points = True
                 if no_button.clicked_on_btn() or (event.type == KEYDOWN and event.key == K_ESCAPE):
-                    shop(player_image, player_rect, player_skin, enemy_image, friend_image)
+                    shop()
                 if back_to_menu_button.clicked_on_btn():
-                    shop(player_image, player_rect, player_skin, enemy_image, friend_image)
+                    shop()
+            if flag_of_check == 'game':
+                if yes_button.clicked_on_btn() or (event.type == KEYDOWN and event.key == K_RETURN):
+                    if all_scores >= 100:
+                        all_scores -= 100
+                        flag_game_is = True
+                        flag_game_buy = False
+                        flag_game = True
+                        flag_game_defoult = False
+                        flag_music_hotline_1 = False
+                        shop()
+                    else:
+                        no_points = True
+                if no_button.clicked_on_btn() or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                    shop()
+                if back_to_menu_button.clicked_on_btn():
+                    shop()
+            if flag_of_check == 'music':
+                if yes_button.clicked_on_btn() or (event.type == KEYDOWN and event.key == K_RETURN):
+                    if all_scores >= 50:
+                        all_scores -= 50
+                        pygame.mixer.music.load('sounds/undead.mp3')
+                        pygame.mixer.music.set_volume(volume)
+                        flag_music_is = True
+                        flag_music_buy = False
+                        flag_music = True
+                        flag_music_defoult = False
+                        flag_music_hotline_1 = False
+                        shop()
+                    else:
+                        no_points = True
+                if no_button.clicked_on_btn() or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                    shop()
+                if back_to_menu_button.clicked_on_btn():
+                    shop()
+            if flag_of_check == 'hotline':
+                if yes_button.clicked_on_btn() or (event.type == KEYDOWN and event.key == K_RETURN):
+                    if all_scores >= 50:
+                        all_scores -= 50
+                        pygame.mixer.music.load('sounds/hotline_1.mp3')
+                        pygame.mixer.music.set_volume(volume)
+                        flag_music_is_hotline_1 = True
+                        flag_music_buy_hotline_1 = False
+                        flag_music_hotline_1 = True
+                        flag_music_defoult = False
+                        flag_music = False
+                        shop()
+                    else:
+                        no_points = True
+                if no_button.clicked_on_btn() or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                    shop()
+                if back_to_menu_button.clicked_on_btn():
+                    shop()
         pygame.display.update()
 
 # Магазин для выбора скинов
-def shop(player_image, player_rect, player_skin, enemy_image, friend_image):
+def shop():
     global flag_rocket
     global flag_mine
     global flag_mine_buy
@@ -355,61 +440,98 @@ def shop(player_image, player_rect, player_skin, enemy_image, friend_image):
     global flag_rocket_is
     global flag_mario
     global all_scores
+    global flag_game_is
+    global flag_game_buy
+    global flag_game
+    global flag_game_defoult
+    global flag_music
+    global flag_music_is
+    global flag_music_buy
+    global flag_music_defoult
+    global flag_music_hotline_1
+    global flag_music_is_hotline_1
+    global flag_music_buy_hotline_1
     while True:
         screen.blit(background_shop, (0, 0))
-        drawText('Scores: %s' % (all_scores), font, screen, 400, 50, WHITE)
+        drawText('Scores: %s' % (all_scores), font, screen, 440, 50, WHITE)
         back_to_menu_button.draw(screen)
         packet_space_button.draw(screen)
         packet_minecraft_button.draw(screen)
         packet_mario_button.draw(screen)
+        game_button.draw(screen)
+        undead_button.draw(screen)
+        game_defoult_button.draw(screen)
+        music_defoult_button.draw(screen)
+        hotline_1_button.draw(screen)
+        # Если предметы не куплены, то отрисовываем картинку с замком и пишем цену
         if flag_rocket_buy:
             packet_space_closed_button.draw(screen)
             drawText('50$', font, screen, 646, 204, WHITE)
         if flag_mine_buy:
             drawText('30$', font, screen, 496, 204, WHITE)
             packet_minecraft_closed_button.draw(screen)
+        if flag_game_buy:
+            game_closed_button.draw(screen)
+            drawText('100$', font, screen, 336, 376, WHITE)
+        if flag_music_buy:
+            undead_closed_button.draw(screen)
+            drawText('50$', font, screen, 696, 376, WHITE)
+        if flag_music_buy_hotline_1:
+            hotline_1_closed_button.draw(screen)
+            drawText('50$', font, screen, 816, 376, WHITE)
+        # Отрисовка выбранных Скинов
         if flag_mine:
             packet_minecraft_selected_button.draw(screen)
         elif flag_rocket:
             packet_space_selected_button.draw(screen)
         elif flag_mario:
             packet_mario_selected_button.draw(screen)
+        if flag_music:
+            undead_selected_button.draw(screen)
+        elif flag_music_defoult:
+            music_defoult_selected_button.draw(screen)
+        elif flag_music_hotline_1:
+            hotline_1_selected_button.draw(screen)
+        if flag_game:
+            game_selected_button.draw(screen)
+        elif flag_game_defoult:
+            game_defoult_selected_button.draw(screen)
+        
         for event in pygame.event.get():
-            # отслеживаем нажатие кнопок
             if event.type == QUIT:
                 save_files()
                 pygame.quit()
                 sys.exit()
-            if event.type == KEYDOWN and event.key == ord(';'):
+            # Backdoor :)
+            if event.type == KEYUP and event.key == ord(';'):
                 all_scores += 100000
             if back_to_menu_button.draw(screen):
-                main_menu(player_image, player_rect, player_skin, enemy_image, friend_image)
+                main_menu()
+                
+            # Вызываем функцию покупки
             if packet_space_button.clicked_on_btn() and flag_rocket_buy:
                 flag_of_check = 'space'
-                check(player_image, player_rect, player_skin, enemy_image, friend_image, flag_of_check)
+                check(flag_of_check)
             if packet_minecraft_button.clicked_on_btn() and flag_mine_buy:
                 flag_of_check = 'mine'
-                check(player_image, player_rect, player_skin, enemy_image, friend_image, flag_of_check)
+                check(flag_of_check)
+            if game_button.clicked_on_btn() and flag_game_buy:
+                flag_of_check = 'game'
+                check(flag_of_check)
+            if undead_button.clicked_on_btn() and flag_music_buy:
+                flag_of_check = 'music'
+                check(flag_of_check)
+            if hotline_1_button.clicked_on_btn() and flag_music_buy_hotline_1:
+                flag_of_check = 'hotline'
+                check(flag_of_check)
+
+            # Выбираем предмет
             if packet_mario_button.clicked_on_btn():
-                player_skin = 'images/items/player_mario.png'
-                player_image = pygame.image.load(player_skin)
-                player_rect = player_image.get_rect()
-                enemy_skin = 'images/items/enemy_mushr.png'
-                enemy_image = pygame.image.load(enemy_skin)
-                friend_skin = 'images/items/friend_coin.png'
-                friend_image = pygame.image.load(friend_skin)
                 flag_mario = True
                 flag_mine = False
                 flag_rocket = False
             if flag_mine_is:
                 if packet_minecraft_button.clicked_on_btn():
-                    player_skin = 'images/items/minecraft_steve.jpg'
-                    player_image = pygame.image.load(player_skin)
-                    player_rect = player_image.get_rect()
-                    enemy_skin = 'images/items/minecraft_crepper.jpg'
-                    enemy_image = pygame.image.load(enemy_skin)
-                    friend_skin = 'images/items/friend_diamond.png'
-                    friend_image = pygame.image.load(friend_skin)
                     flag_mine = True
                     flag_rocket = False
                     flag_mario = False
@@ -418,18 +540,43 @@ def shop(player_image, player_rect, player_skin, enemy_image, friend_image):
                     flag_mine = False
                     flag_rocket = True
                     flag_mario = False
-                    player_skin = 'images/items/player_rocket.png'
-                    player_image = pygame.image.load(player_skin)
-                    player_rect = player_image.get_rect()
-                    enemy_skin = 'images/items/enemy_asteroid.png'
-                    enemy_image = pygame.image.load(enemy_skin)
-                    friend_skin = 'images/items/friend_star.png'
-                    friend_image = pygame.image.load(friend_skin)
+            if flag_game_is:
+                if game_button.clicked_on_btn():
+                    flag_game_defoult = False
+                    flag_game = True
+            if game_defoult_button.clicked_on_btn():
+                flag_game = False
+                flag_game_defoult = True
+            if flag_music_is:
+                if undead_button.clicked_on_btn():
+                    pygame.mixer.music.load('sounds/undead.mp3')
+                    pygame.mixer.music.set_volume(volume)
+                    flag_music = True
+                    flag_music_defoult = False
+                    flag_music_hotline_1 = False
+            if music_defoult_button.clicked_on_btn():
+                pygame.mixer.music.load('sounds/music_background.mp3')
+                pygame.mixer.music.set_volume(volume)
+                flag_music = False
+                flag_music_hotline_1 = False
+
+                flag_music_defoult = True
+            if flag_music_is_hotline_1:
+                if hotline_1_button.clicked_on_btn():
+                    pygame.mixer.music.load('sounds/hotline_1.mp3')
+                    pygame.mixer.music.set_volume(volume)
+                    flag_music_hotline_1 = True
+                    flag_music = False
+                    flag_music_defoult = False
+
         pygame.display.flip()
 
 # Функция меню после смерти
-def menu_after_death(player_image, player_rect, player_skin, enemy_image, friend_image):
-    save_data.save('max', top_score)
+def menu_after_death():
+    if flag_game_defoult:
+        save_data.save('max', top_score)
+    elif flag_game:
+        save_data.save('max_lvl2', top_score_lvl2)
     save_data.save('all', all_scores)
     pygame.mixer.music.pause()
     death_menu = True
@@ -437,7 +584,6 @@ def menu_after_death(player_image, player_rect, player_skin, enemy_image, friend
         screen.blit(background_image, (0, 0))
         drawText('YOU DIED', font_menu_name, screen, 360, 140, RED)
         pygame.mouse.set_visible(True)
-        # создаём нужные кнопки
         restart_button.draw(screen)
         setting_button.draw(screen)
         back_to_menu_button.draw(screen)
@@ -455,17 +601,17 @@ def menu_after_death(player_image, player_rect, player_skin, enemy_image, friend
                     sys.exit()
                 if event.key == ord('r') or event.key == K_SPACE or event.key == K_RETURN:
                     pygame.mixer.music.unpause()
-                    game(player_image, player_rect, player_skin, enemy_image, friend_image)
+                    game()
             if restart_button.draw(screen):
                 pygame.mixer.music.unpause()
-                game(player_image, player_rect, player_skin, enemy_image, friend_image)
+                game()
             if setting_button.draw(screen):
                     settings_menu_after_death()
             if back_to_menu_button.draw(screen):
-                main_menu(player_image, player_rect, player_skin, enemy_image, friend_image)
+                main_menu()
 
 # Меню в которое мы выходим из "меню" при помощи esc или из "меню" после смерти
-def main_menu(player_image, player_rect, player_skin, enemy_image, friend_image):
+def main_menu():
     while True:
         screen.fill(LIGHTBLUE)
         drawText('Tiny Spark', font_menu_name, screen, 346, 140, BLUE)
@@ -474,43 +620,62 @@ def main_menu(player_image, player_rect, player_skin, enemy_image, friend_image)
                         save_files()
                         pygame.quit()
                         sys.exit()
+
             if start_button.draw(screen):
                 pygame.mixer.music.play()
-                game(player_image, player_rect, player_skin, enemy_image, friend_image)
+                game()
+
             if setting_button.draw(screen):
                 settings_main_menu()
+
             if quit_button.draw(screen):
                 save_files()
                 pygame.quit()
                 sys.exit()
+
             if shop_button.draw(screen):
-                shop(player_image, player_rect, player_skin, enemy_image, friend_image)
+                shop()
+
             pygame.display.flip()
 
 
 top_score = save_data.get('max')
+top_score_lvl2 = save_data.get('max_lvl2')
 all_scores = save_data.get('all')
+
+if flag_music_defoult:
+        pygame.mixer.music.load('sounds/music_background.mp3')
+        pygame.mixer.music.set_volume(volume)
+if flag_music:
+    pygame.mixer.music.load('sounds/undead.mp3')
+    pygame.mixer.music.set_volume(volume)
 
 running = True
 while running:
     screen.fill(LIGHTBLUE)
     drawText('Tiny Spark', font_menu_name, screen, 346, 140, BLUE)
+    
     if start_button.draw(screen):
         pygame.mixer.music.play()
-        game(player_image, player_rect, player_skin, enemy_image, friend_image)
+        game()
+
     if setting_button.draw(screen):
         settings_main_menu()
+
     if quit_button.draw(screen):
         save_files()
         pygame.quit()
         sys.exit()
+
     if shop_button.draw(screen):
-        shop(player_image, player_rect, player_skin, enemy_image, friend_image)
+        shop()
 
     # Функция гемплея
-    def game(player_image, player_rect, player_skin, enemy_image, friend_image):
+    def game():
         global top_score
+        global top_score_lvl2
         global all_scores
+        global flag_game, flag_game_defoult, flag_music, flag_music_defoult
         pygame.mouse.set_visible(False)
         while True:
             if flag_mario:
@@ -521,6 +686,7 @@ while running:
                 enemy_image = pygame.image.load(enemy_skin)
                 friend_skin = 'images/items/friend_coin.png'
                 friend_image = pygame.image.load(friend_skin)
+
             if flag_mine:
                 player_skin = 'images/items/minecraft_steve.jpg'
                 player_image = pygame.image.load(player_skin)
@@ -529,6 +695,7 @@ while running:
                 enemy_image = pygame.image.load(enemy_skin)
                 friend_skin = 'images/items/friend_diamond.png'
                 friend_image = pygame.image.load(friend_skin)
+
             if flag_rocket:
                 player_skin = 'images/items/player_rocket.png'
                 player_image = pygame.image.load(player_skin)
@@ -537,6 +704,29 @@ while running:
                 enemy_image = pygame.image.load(enemy_skin)
                 friend_skin = 'images/items/friend_star.png'
                 friend_image = pygame.image.load(friend_skin)
+
+            if flag_game_defoult:
+                ENEMYSIZE = 20
+                FRIENDSIZE = 35
+                ENEMYMAXSIZE = 40
+                FRIENDMAXSIZE = 50
+                ENEMYMINSPEED = 1
+                ENEMYMAXSPEED = 5
+                ADDNEWENEMYRATE = 6
+                ADDNEWFRIENDRATE = 10
+                PLAYERMOVERATE = 4
+
+            if flag_game:
+                ENEMYSIZE = 60
+                FRIENDSIZE = 25
+                ENEMYMAXSIZE = 70
+                FRIENDMAXSIZE = 35
+                ENEMYMINSPEED = 3
+                ENEMYMAXSPEED = 5
+                ADDNEWENEMYRATE = 6
+                ADDNEWFRIENDRATE = 9
+                PLAYERMOVERATE = 4
+            
             enemy = []
             friend = []
             score = 0
@@ -547,8 +737,6 @@ while running:
             moveRight = False
             moveUp = False
             moveDown = False
-            reverseCheat = False
-            slowCheat = False
             EnemyCounter = 0
             FriendCounter = 0
             while True:                
@@ -577,13 +765,14 @@ while running:
                                 drawText('PAUSE', font_menu_name, screen, 408, 150, GREEN)
                                 resume_button_for_pause.draw(screen)
                                 restart_button_for_pause.draw(screen)
-                                # setting_button.draw(screen)
                                 back_to_menu_button_for_pause.draw(screen)
                                 pygame.display.flip()
                                 for event in pygame.event.get():
-                                    # отслеживаем нажатие кнопок
                                     if event.type == QUIT:
-                                        top_score = score
+                                        if flag_game_defoult:
+                                            top_score = score
+                                        else:
+                                            top_score_lvl2 = score
                                         save_files()
                                         pygame.quit()
                                         sys.exit()
@@ -601,16 +790,22 @@ while running:
                                         pygame.mouse.set_visible(False)
                                         pygame.mixer.music.unpause()
                                     if restart_button_for_pause.draw(screen):
-                                        if score > top_score:
-                                            top_score = score
+                                        if flag_game_defoult:
+                                            if score > top_score:
+                                                top_score = score
+                                        else:
+                                            if score > top_score_lvl2:
+                                                top_score_lvl2 = score
                                         pygame.mixer.music.unpause()
-                                        game(player_image, player_rect, player_skin, enemy_image, friend_image)
-                                    '''if setting_button.draw(screen):
-                                        settings()'''
+                                        game()
                                     if back_to_menu_button_for_pause.draw(screen):
-                                        if score > top_score:
-                                            top_score = score
-                                        main_menu(player_image, player_rect, player_skin, enemy_image, friend_image)
+                                        if flag_game_defoult:
+                                            if score > top_score:
+                                                top_score = score
+                                        else:
+                                            if score > top_score_lvl2:
+                                                top_score_lvl2 = score
+                                        main_menu()
 
                     if event.type == KEYUP:
                         if event.key == K_LEFT or event.key == ord('a'):
@@ -646,7 +841,7 @@ while running:
                         }
                     friend.append(new_friend)
 
-                # Персонаж не выходит за рамки и не поднимался выше половины высоты (позже стилизую так лвлa)
+                # Персонаж не выходит за рамки и не поднимался выше половины высоты
                 if moveLeft and player_rect.left > 0:
                     player_rect.move_ip(-1 * PLAYERMOVERATE, 0)
                 if moveRight and player_rect.right < SCREEN_WIDTH:
@@ -672,11 +867,12 @@ while running:
                     if i['rect'].top > SCREEN_HEIGHT:
                         friend.remove(i)
 
-                screen.fill(BLACK)
-
                 # Отрисовка очков
                 drawText('Score: %s' % (score), font, screen, 10, 10, WHITE)
-                drawText('Top Score: %s' % (top_score), font, screen, 10, 50, WHITE)
+                if flag_game_defoult:
+                    drawText('Top Score: %s' % (top_score), font, screen, 10, 50, WHITE)
+                else:
+                    drawText('Top Score: %s' % (top_score_lvl2), font, screen, 10, 50, WHITE)
 
                 # Отрисовка игрока
                 screen.blit(player_image, player_rect)
@@ -698,18 +894,27 @@ while running:
                         if player_rect.colliderect(i['rect']):                            
                             friend.remove(i)
 
-                            
                 # Проверка на соприкасание игрока и enemy
                 if enemyhit(player_rect, enemy):
-                    if score > top_score:
-                        top_score = score
+                    if flag_game_defoult:
+                        if score > top_score:
+                            top_score = score
+                    else:
+                        if score > top_score_lvl2:
+                            top_score_lvl2 = score
                     break
+                    
+                if flag_game_defoult:
+                    screen.fill(BLACK)
+
+                if flag_game:
+                    screen.fill(LIGHTBLUE)
 
                 Clock.tick(FPS)
 
             game_over.play()
             take_friend.stop()
-            menu_after_death(player_image, player_rect, player_skin, enemy_image, friend_image)
+            menu_after_death()
 
             pygame.display.update()
 
