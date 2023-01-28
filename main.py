@@ -18,6 +18,8 @@ SCREEN_HEIGHT = 700
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 LIGHTBLUE = (202, 228, 241)
+BACKGROUND_COLOR = (104, 155, 202)
+
 BLUE = (34, 145, 230)
 RED = (255, 0, 0)
 GREEN = (0, 214, 120)
@@ -907,7 +909,7 @@ while running:
                     screen.fill(BLACK)
 
                 if flag_game:
-                    screen.fill(LIGHTBLUE)
+                    screen.fill(BACKGROUND_COLOR)
 
                 Clock.tick(FPS)
 

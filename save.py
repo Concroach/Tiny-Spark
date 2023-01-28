@@ -4,7 +4,6 @@ import shelve
 class save():
     def __init__(self):
         self.file = shelve.open('data')
-        self
 
     def save(self, name, value):
         self.file[name] = value
